@@ -1,13 +1,23 @@
 package org.dyndns.wjdtmddnr24.tcqr;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -22,6 +32,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
@@ -29,10 +40,25 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 
+import org.tukaani.xz.LZMA2Options;
+import org.tukaani.xz.UnsupportedOptionsException;
+import org.tukaani.xz.XZInputStream;
+import org.tukaani.xz.XZOutputStream;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class EncodeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, View.OnLongClickListener {
 
+    public static final int REQUEST_WRITE_PERMISSION = 10;
     private ImageView imageView;
     private EditText editText;
     private Button button;
@@ -61,6 +87,17 @@ public class EncodeActivity extends AppCompatActivity implements NavigationView.
         imageView.setOnClickListener(this);
         button.setOnClickListener(this);
 
+        ByteArrayInputStream bis = new ByteArrayInputStream("hi".getBytes());
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try {
+            LZMA2Options options = new LZMA2Options();
+            options.setPreset(7);
+            XZOutputStream out = new XZOutputStream(bos, options);
+            XZInputStream in = new XZInputStream(bis);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override
@@ -86,10 +123,37 @@ public class EncodeActivity extends AppCompatActivity implements NavigationView.
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (id) {
+            case R.id.menu_save:
+                if (imageView.getDrawable() == null) {
+                    editText.setError("먼저 코드를 생성해 주세요");
+                    editText.requestFocus();
+                } else {
+                    try {
+                        String filepath = saveQRCode(((BitmapDrawable) imageView.getDrawable()).getBitmap());
+                        Toast.makeText(EncodeActivity.this, filepath + " 로 파일을 저장하였습니다.", Toast.LENGTH_SHORT).show();
+                        MediaScannerConnection.scanFile(EncodeActivity.this, new String[]{filepath}, null, null);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                        Toast.makeText(EncodeActivity.this, "파일을 저장하는데 문제가 발생하였습니다.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                break;
+            case R.id.menu_share:
+                if (imageView.getDrawable() == null) {
+                    editText.setError("먼저 코드를 생성해 주세요");
+                    editText.requestFocus();
+                    return true;
+                }
+                Bitmap QRCode = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+                String pathofBmp = MediaStore.Images.Media.insertImage(getContentResolver(), QRCode, "Created By TCQR", null);
+                Uri bmpUri = Uri.parse(pathofBmp);
+                final Intent shareIntent = new Intent(android.content.Intent.ACTION_SEND);
+                shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                shareIntent.putExtra(Intent.EXTRA_STREAM, bmpUri);
+                shareIntent.setType("image/png");
+                startActivity(shareIntent);
+                break;
         }
 
         return super.onOptionsItemSelected(item);
@@ -151,7 +215,28 @@ public class EncodeActivity extends AppCompatActivity implements NavigationView.
                     }, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-
+                            switch (i) {
+                                case 0:
+                                    try {
+                                        String filepath = saveQRCode(((BitmapDrawable) imageView.getDrawable()).getBitmap());
+                                        Toast.makeText(EncodeActivity.this, filepath + " 로 파일을 저장하였습니다.", Toast.LENGTH_SHORT).show();
+                                        MediaScannerConnection.scanFile(EncodeActivity.this, new String[]{filepath}, null, null);
+                                    } catch (FileNotFoundException e) {
+                                        e.printStackTrace();
+                                        Toast.makeText(EncodeActivity.this, "파일을 저장하는데 문제가 발생하였습니다.", Toast.LENGTH_SHORT).show();
+                                    }
+                                    break;
+                                case 1:
+                                    Bitmap QRCode = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+                                    String pathofBmp = MediaStore.Images.Media.insertImage(getContentResolver(), QRCode, "Created By TCQR", null);
+                                    Uri bmpUri = Uri.parse(pathofBmp);
+                                    final Intent shareIntent = new Intent(android.content.Intent.ACTION_SEND);
+                                    shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    shareIntent.putExtra(Intent.EXTRA_STREAM, bmpUri);
+                                    shareIntent.setType("image/png");
+                                    startActivity(shareIntent);
+                                    break;
+                            }
                         }
                     }).create().show();
                 }
@@ -168,6 +253,36 @@ public class EncodeActivity extends AppCompatActivity implements NavigationView.
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_WRITE_PERMISSION) {
+            if (grantResults.length == 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(EncodeActivity.this, "쓰기권한을 주시기 바랍니다", Toast.LENGTH_SHORT).show();
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    private String saveQRCode(Bitmap bitmap) throws FileNotFoundException {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_PERMISSION);
+        }
+        String ex_storage = Environment.getExternalStorageDirectory().getAbsolutePath();
+        String foler_name = "/TCQR/Create/";
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddhhmm");
+        Date date = new Date();
+        String file_name = dateFormat.format(date) + ".jpg";
+        String fullpath = ex_storage + foler_name + file_name;
+        File file = new File(ex_storage + foler_name, file_name);
+        File dir = new File(ex_storage + foler_name);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        FileOutputStream fileOutputStream = new FileOutputStream(file);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
+        return fullpath;
+    }
+
+    @Override
     public boolean onLongClick(View view) {
         switch (view.getId()) {
             case R.id.imageView:
@@ -177,7 +292,18 @@ public class EncodeActivity extends AppCompatActivity implements NavigationView.
                     }, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-
+                            switch (i) {
+                                case 0:
+                                    try {
+                                        String filepath = saveQRCode(((BitmapDrawable) imageView.getDrawable()).getBitmap());
+                                        Toast.makeText(EncodeActivity.this, filepath + " 로 파일을 저장하였습니다.", Toast.LENGTH_SHORT).show();
+                                        MediaScannerConnection.scanFile(EncodeActivity.this, new String[]{filepath}, null, null);
+                                    } catch (FileNotFoundException e) {
+                                        e.printStackTrace();
+                                        Toast.makeText(EncodeActivity.this, "파일을 저장하는데 문제가 발생하였습니다.", Toast.LENGTH_SHORT).show();
+                                    }
+                                    break;
+                            }
                         }
                     }).create().show();
                 }
