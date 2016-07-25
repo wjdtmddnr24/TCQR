@@ -1,6 +1,9 @@
 package org.dyndns.wjdtmddnr24.tcqr;
 
 import android.Manifest;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -211,7 +214,7 @@ public class EncodeActivity extends AppCompatActivity implements NavigationView.
             case R.id.imageView:
                 if (imageView.getDrawable() != null) {
                     new AlertDialog.Builder(this).setTitle("기능 선택").setItems(new CharSequence[]{
-                            "이미지 저장", "공유"
+                            "이미지 저장", "공유", "클립보드에 복사"
                     }, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
@@ -226,16 +229,29 @@ public class EncodeActivity extends AppCompatActivity implements NavigationView.
                                         Toast.makeText(EncodeActivity.this, "파일을 저장하는데 문제가 발생하였습니다.", Toast.LENGTH_SHORT).show();
                                     }
                                     break;
-                                case 1:
+                                case 1: {
                                     Bitmap QRCode = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
                                     String pathofBmp = MediaStore.Images.Media.insertImage(getContentResolver(), QRCode, "Created By TCQR", null);
                                     Uri bmpUri = Uri.parse(pathofBmp);
-                                    final Intent shareIntent = new Intent(android.content.Intent.ACTION_SEND);
+                                    final Intent shareIntent = new Intent(Intent.ACTION_SEND);
                                     shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                     shareIntent.putExtra(Intent.EXTRA_STREAM, bmpUri);
                                     shareIntent.setType("image/png");
                                     startActivity(shareIntent);
                                     break;
+                                }
+                                case 2: {
+                                    ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                                    ContentResolver cr = getContentResolver();
+                                    Bitmap QRCode = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+                                    String pathofBmp = MediaStore.Images.Media.insertImage(getContentResolver(), QRCode, "Created By TCQR", null);
+                                    Uri bmpUri = Uri.parse(pathofBmp);
+                                    ClipData clip = ClipData.newRawUri("uri", bmpUri);
+//                                    ClipData clip = ClipData.newUri(getContentResolver(), "Image", bmpUri);
+                                    clipboard.setPrimaryClip(clip);
+                                    Toast.makeText(EncodeActivity.this, "클립보드에 복사하였습니다.", Toast.LENGTH_SHORT).show();
+                                    break;
+                                }
                             }
                         }
                     }).create().show();
@@ -288,7 +304,7 @@ public class EncodeActivity extends AppCompatActivity implements NavigationView.
             case R.id.imageView:
                 if (imageView.getDrawable() != null) {
                     new AlertDialog.Builder(this).setTitle("기능 선택").setItems(new CharSequence[]{
-                            "이미지 저장", "공유"
+                            "이미지 저장", "공유", "클립보드에 복사"
                     }, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
@@ -303,7 +319,31 @@ public class EncodeActivity extends AppCompatActivity implements NavigationView.
                                         Toast.makeText(EncodeActivity.this, "파일을 저장하는데 문제가 발생하였습니다.", Toast.LENGTH_SHORT).show();
                                     }
                                     break;
+                                case 1: {
+                                    Bitmap QRCode = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+                                    String pathofBmp = MediaStore.Images.Media.insertImage(getContentResolver(), QRCode, "Created By TCQR", null);
+                                    Uri bmpUri = Uri.parse(pathofBmp);
+                                    final Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                                    shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    shareIntent.putExtra(Intent.EXTRA_STREAM, bmpUri);
+                                    shareIntent.setType("image/png");
+                                    startActivity(shareIntent);
+                                    break;
+                                }
+                                case 2: {
+                                    ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                                    ContentResolver cr = getContentResolver();
+                                    Bitmap QRCode = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+                                    String pathofBmp = MediaStore.Images.Media.insertImage(getContentResolver(), QRCode, "Created By TCQR", null);
+                                    Uri bmpUri = Uri.parse(pathofBmp);
+                                    ClipData clip = ClipData.newRawUri("uri", bmpUri);
+//                                    ClipData clip = ClipData.newUri(getContentResolver(), "Image", bmpUri);
+                                    clipboard.setPrimaryClip(clip);
+                                    Toast.makeText(EncodeActivity.this, "클립보드에 복사하였습니다.", Toast.LENGTH_SHORT).show();
+                                    break;
+                                }
                             }
+
                         }
                     }).create().show();
                 }

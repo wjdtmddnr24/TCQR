@@ -134,7 +134,7 @@ public class ScanCodeWithGalleryFragment extends Fragment implements View.OnClic
                         textView.setText(result.toString() + result.getBarcodeFormat().name());
                     } catch (FormatException | ChecksumException | NotFoundException e) {
                         e.printStackTrace();
-                        Toast.makeText(getContext(), "인식에 문제가 발생하였습니다. 위의 이미지가   QR코드가 포함된 사진인지 다시 확인해보세요", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "인식에 문제가 발생하였습니다. 위의 이미지가 QR코드가 포함된 사진인지 다시 확인해보세요", Toast.LENGTH_SHORT).show();
                     }
                 }
             }

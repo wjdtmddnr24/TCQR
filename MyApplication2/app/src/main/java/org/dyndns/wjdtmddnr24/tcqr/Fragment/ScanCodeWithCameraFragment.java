@@ -1,6 +1,9 @@
 package org.dyndns.wjdtmddnr24.tcqr.Fragment;
 
 import android.Manifest;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -140,7 +143,7 @@ public class ScanCodeWithCameraFragment extends Fragment implements View.OnClick
             case R.id.imageView:
                 if (imageView.getDrawable() != null) {
                     new AlertDialog.Builder(getContext()).setTitle("기능 선택").setItems(new CharSequence[]{
-                            "이미지 저장", "공유"
+                            "이미지 저장", "공유","클립보드에 복사"
                     }, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
@@ -155,7 +158,7 @@ public class ScanCodeWithCameraFragment extends Fragment implements View.OnClick
                                         Toast.makeText(getContext(), "파일을 저장하는데 문제가 발생하였습니다.", Toast.LENGTH_SHORT).show();
                                     }
                                     break;
-                                case 1:
+                                case 1: {
                                     Bitmap QRCode = ((GlideBitmapDrawable) imageView.getDrawable().getCurrent()).getBitmap();
                                     String pathofBmp = MediaStore.Images.Media.insertImage(getContext().getContentResolver(), QRCode, "Created By TCQR", null);
                                     Uri bmpUri = Uri.parse(pathofBmp);
@@ -165,6 +168,19 @@ public class ScanCodeWithCameraFragment extends Fragment implements View.OnClick
                                     shareIntent.setType("image/png");
                                     startActivity(shareIntent);
                                     break;
+                                }
+                                case 2: {
+                                    ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                                    ContentResolver cr = getContext().getContentResolver();
+                                    Bitmap QRCode = ((GlideBitmapDrawable) imageView.getDrawable().getCurrent()).getBitmap();
+                                    String pathofBmp = MediaStore.Images.Media.insertImage(getContext().getContentResolver(), QRCode, "Created By TCQR", null);
+                                    Uri bmpUri = Uri.parse(pathofBmp);
+                                    ClipData clip = ClipData.newRawUri("uri", bmpUri);
+//                                    ClipData clip = ClipData.newUri(getContentResolver(), "Image", bmpUri);
+                                    clipboard.setPrimaryClip(clip);
+                                    Toast.makeText(getContext(), "클립보드에 복사하였습니다.", Toast.LENGTH_SHORT).show();
+                                    break;
+                                }
                             }
                         }
                     }).create().show();
@@ -200,7 +216,7 @@ public class ScanCodeWithCameraFragment extends Fragment implements View.OnClick
             case R.id.imageView:
                 if (imageView.getDrawable() != null) {
                     new AlertDialog.Builder(getContext()).setTitle("기능 선택").setItems(new CharSequence[]{
-                            "이미지 저장", "공유"
+                            "이미지 저장", "공유","클립보드에 복사"
                     }, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
@@ -215,7 +231,7 @@ public class ScanCodeWithCameraFragment extends Fragment implements View.OnClick
                                         Toast.makeText(getContext(), "파일을 저장하는데 문제가 발생하였습니다.", Toast.LENGTH_SHORT).show();
                                     }
                                     break;
-                                case 1:
+                                case 1: {
                                     Bitmap QRCode = ((GlideBitmapDrawable) imageView.getDrawable().getCurrent()).getBitmap();
                                     String pathofBmp = MediaStore.Images.Media.insertImage(getContext().getContentResolver(), QRCode, "Created By TCQR", null);
                                     Uri bmpUri = Uri.parse(pathofBmp);
@@ -225,6 +241,19 @@ public class ScanCodeWithCameraFragment extends Fragment implements View.OnClick
                                     shareIntent.setType("image/png");
                                     startActivity(shareIntent);
                                     break;
+                                }
+                                case 2: {
+                                    ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                                    ContentResolver cr = getContext().getContentResolver();
+                                    Bitmap QRCode = ((GlideBitmapDrawable) imageView.getDrawable().getCurrent()).getBitmap();
+                                    String pathofBmp = MediaStore.Images.Media.insertImage(getContext().getContentResolver(), QRCode, "Created By TCQR", null);
+                                    Uri bmpUri = Uri.parse(pathofBmp);
+                                    ClipData clip = ClipData.newRawUri("uri", bmpUri);
+//                                    ClipData clip = ClipData.newUri(getContentResolver(), "Image", bmpUri);
+                                    clipboard.setPrimaryClip(clip);
+                                    Toast.makeText(getContext(), "클립보드에 복사하였습니다.", Toast.LENGTH_SHORT).show();
+                                    break;
+                                }
                             }
                         }
                     }).create().show();
