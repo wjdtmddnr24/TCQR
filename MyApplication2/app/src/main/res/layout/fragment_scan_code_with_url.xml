@@ -25,7 +25,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:text="Button" />
+        android:text="이미지 다운" />
 
     <ImageView
         android:id="@+id/imageView"

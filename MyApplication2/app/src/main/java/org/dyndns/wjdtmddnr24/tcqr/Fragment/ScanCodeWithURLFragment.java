@@ -18,8 +18,11 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.ChecksumException;
 import com.google.zxing.FormatException;
@@ -106,7 +109,7 @@ public class ScanCodeWithURLFragment extends Fragment implements View.OnClickLis
                     editText.requestFocus();
                     return;
                 }
-                if (!url.substring(0, "http".length()).equals("http")) {
+                if (url.length() < "http://".length() || !url.substring(0, "http".length()).equals("http")) {
                     url = "http://" + url;
                 }
                 new DecodeImageURLTask(url).execute();
@@ -135,7 +138,20 @@ public class ScanCodeWithURLFragment extends Fragment implements View.OnClickLis
             Bitmap bitmap = null;
             String ret = "";
             try {
-                bitmap = Glide.with(getContext()).load(url).asBitmap().into(-1, -1).get();
+                bitmap = Glide.with(getContext()).load(url).asBitmap().listener(new RequestListener<String, Bitmap>() {
+                    @Override
+                    public boolean onException(Exception e, String model, Target<Bitmap> target, boolean isFirstResource) {
+                        Toast.makeText(getContext(), "이미지를 불러오는데 문제가 발생하였습니다. 정확한 주소를 입력하였는지 다시 확인해주세요", Toast.LENGTH_SHORT).show();
+                        cancel(true);
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(Bitmap resource, String model, Target<Bitmap> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                        return false;
+                    }
+                }).into(-1, -1).get();
+
 
                 int width = bitmap.getWidth(), height = bitmap.getHeight();
                 int[] pixels = new int[width * height];
@@ -149,6 +165,14 @@ public class ScanCodeWithURLFragment extends Fragment implements View.OnClickLis
                 ret = "";
             }
             return ret;
+        }
+
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+            if (progressDialog.isShowing()) {
+                progressDialog.dismiss();
+            }
         }
 
         @Override

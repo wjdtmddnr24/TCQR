@@ -2,6 +2,7 @@ package org.dyndns.wjdtmddnr24.tcqr.Fragment;
 
 import android.content.Context;
 import android.content.Intent;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,9 +11,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -21,6 +24,7 @@ import org.dyndns.wjdtmddnr24.tcqr.R;
 public class ScanCodeWithCameraFragment extends Fragment implements View.OnClickListener {
     private Button button;
     private TextView textView;
+    private ImageView imageView;
 
     private OnFragmentInteractionListener mListener;
 
@@ -35,6 +39,7 @@ public class ScanCodeWithCameraFragment extends Fragment implements View.OnClick
             if (QRresult.getContents() != null && !QRresult.getContents().isEmpty()) {
                 Log.d("tcqrres", "onActivityResult:" + QRresult.toString());
                 textView.setText(QRresult.toString());
+                Glide.with(getActivity()).load(QRresult.getBarcodeImagePath()).into(imageView);
             } else {
                 Toast.makeText(getContext(), "스캔을 취소하였습니다.", Toast.LENGTH_SHORT).show();
             }
@@ -60,7 +65,7 @@ public class ScanCodeWithCameraFragment extends Fragment implements View.OnClick
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_scan_code_with_camera, container, false);
         textView = (TextView) view.findViewById(R.id.text);
-
+        imageView = (ImageView) view.findViewById(R.id.imageView);
         button = (Button) view.findViewById(R.id.button);
         button.setOnClickListener(this);
         return view;
@@ -95,6 +100,8 @@ public class ScanCodeWithCameraFragment extends Fragment implements View.OnClick
             case R.id.button:
                 IntentIntegrator intentIntegrator = IntentIntegrator.forSupportFragment(this);
                 intentIntegrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES);
+                intentIntegrator.setBarcodeImageEnabled(true);
+                intentIntegrator.setBeepEnabled(true);
                 intentIntegrator.setPrompt("카메라에 QR코드를 맞추어주세요.");
                 intentIntegrator.initiateScan();
                 break;
