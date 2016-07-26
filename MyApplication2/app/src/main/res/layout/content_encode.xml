@@ -12,18 +12,26 @@
     tools:context="org.dyndns.wjdtmddnr24.tcqr.EncodeActivity"
     tools:showIn="@layout/activity_encode">
 
-    <EditText
-        android:id="@+id/edittext"
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/textinput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:lines="4" />
+        app:counterEnabled="true">
+
+        <EditText
+            android:id="@+id/edittext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:hint="내용"
+            android:lines="4" />
+    </android.support.design.widget.TextInputLayout>
 
     <Button
         android:id="@+id/button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/edittext"
+        android:layout_below="@id/textinput"
         android:text="코드 생성" />
 
     <ImageView

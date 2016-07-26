@@ -4,9 +4,7 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <string name="action_settings">Settings</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_encode">EncodeActivity</string>
+    <string name="credit"> 이름: 정승욱\n학년: 2학년 1반 24번\n소속: 선린 인터넷 고등학교\n\n\n Created by ChungSeungUk\n 2016/7/26</string>
 </resources>
