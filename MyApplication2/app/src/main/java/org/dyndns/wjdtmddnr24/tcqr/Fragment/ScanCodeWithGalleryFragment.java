@@ -112,6 +112,27 @@ public class ScanCodeWithGalleryFragment extends Fragment implements View.OnClic
         mListener = null;
     }
 
+    private void tryWithPure(Bitmap bitmap) throws FormatException, ChecksumException, NotFoundException, UnsupportedEncodingException {
+        int width = bitmap.getWidth(), height = bitmap.getHeight();
+        int[] pixels = new int[width * height];
+        bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+        RGBLuminanceSource source = new RGBLuminanceSource(width, height, pixels);
+        BinaryBitmap bBitmap = new BinaryBitmap(new HybridBinarizer(source));
+        Hashtable hints = new Hashtable();
+        hints.put(DecodeHintType.CHARACTER_SET, "ISO-8859-1");
+        hints.put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
+        hints.put(DecodeHintType.PURE_BARCODE, Boolean.TRUE);
+        Result result = new QRCodeReader().decode(bBitmap, hints);
+        if (result.toString().length() > ("TCQREncoded:" + (char) 0x04).length() && result.toString().substring(0, ("TCQREncoded:" + (char) 0x04).length()).equals(("TCQREncoded:" + (char) 0x04))) {
+            String compressedValue = result.getText().substring(("TCQREncoded:" + (char) 0x04).length());
+            Toast.makeText(getContext(), "본 내용이 TCQR로 압축됨을 인식하였습니다. 압축해제를 합니다", Toast.LENGTH_SHORT).show();
+            decompressTextTask = new DecompressTextTask(compressedValue.length());
+            decompressTextTask.execute(compressedValue.getBytes("ISO-8859-1"));
+        } else {
+            textView.setText(new String(result.toString().getBytes("ISO-8859-1"), "UTF-8") + result.getBarcodeFormat().name());
+        }
+    }
+
     private void clipboardDecode() throws IOException {
         ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
         ContentResolver cr = getContext().getContentResolver();
@@ -131,6 +152,7 @@ public class ScanCodeWithGalleryFragment extends Fragment implements View.OnClic
                         BinaryBitmap bBitmap = new BinaryBitmap(new HybridBinarizer(source));
                         Hashtable hints = new Hashtable();
                         hints.put(DecodeHintType.CHARACTER_SET, "ISO-8859-1");
+                        hints.put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
                         Result result = new QRCodeReader().decode(bBitmap, hints);
                         if (result.toString().length() > ("TCQREncoded:" + (char) 0x04).length() && result.toString().substring(0, ("TCQREncoded:" + (char) 0x04).length()).equals(("TCQREncoded:" + (char) 0x04))) {
                             String compressedValue = result.getText().substring(("TCQREncoded:" + (char) 0x04).length());
@@ -143,8 +165,13 @@ public class ScanCodeWithGalleryFragment extends Fragment implements View.OnClic
                         }
                     } catch (FormatException | ChecksumException | NotFoundException e) {
                         e.printStackTrace();
-                        Toast.makeText(getContext(), "인식에 문제가 발생하였습니다. 위의 이미지가 QR코드가 포함된 사진인지 다시 확인해보세요", Toast.LENGTH_SHORT).show();
-                        textView.setText("");
+                        try {
+                            tryWithPure(bitmap);
+                        } catch (FormatException | ChecksumException | NotFoundException e1) {
+                            Toast.makeText(getContext(), "인식에 문제가 발생하였습니다. 위의 이미지가 QR코드가 포함된 사진인지 다시 확인해보세요", Toast.LENGTH_SHORT).show();
+                            textView.setText("");
+                            e1.printStackTrace();
+                        }
                     }
                 } else {
                     Toast.makeText(getContext(), "클립보드에서 이미지를 가져오는데 문제가 발생하였습니다", Toast.LENGTH_SHORT).show();
@@ -227,6 +254,8 @@ public class ScanCodeWithGalleryFragment extends Fragment implements View.OnClic
                         BinaryBitmap bBitmap = new BinaryBitmap(new HybridBinarizer(source));
                         Hashtable hints = new Hashtable();
                         hints.put(DecodeHintType.CHARACTER_SET, "ISO-8859-1");
+//                        hints.put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
+
                         Result result = new QRCodeReader().decode(bBitmap, hints);
                         if (result.toString().length() > ("TCQREncoded:" + (char) 0x04).length() && result.toString().substring(0, ("TCQREncoded:" + (char) 0x04).length()).equals(("TCQREncoded:" + (char) 0x04))) {
                             String compressedValue = result.getText().substring(("TCQREncoded:" + (char) 0x04).length());
@@ -234,12 +263,19 @@ public class ScanCodeWithGalleryFragment extends Fragment implements View.OnClic
                             decompressTextTask = new DecompressTextTask(compressedValue.length());
                             decompressTextTask.execute(compressedValue.getBytes("ISO-8859-1"));
                         } else {
-                            textView.setText(new String(result.toString().getBytes("ISO-8859-1"), "UTF-8") + result.getBarcodeFormat().name());
+                            textView.setText(new String(result.toString().getBytes("ISO-8859-1"), "UTF-8"));
                         }
                     } catch (FormatException | ChecksumException | NotFoundException e) {
                         e.printStackTrace();
-                        Toast.makeText(getContext(), "인식에 문제가 발생하였습니다. 위의 이미지가 QR코드가 포함된 사진인지 다시 확인해보세요", Toast.LENGTH_SHORT).show();
-                        textView.setText("");
+                        try {
+                            tryWithPure(bitmap);
+                        } catch (FormatException | ChecksumException | NotFoundException e1) {
+                            Toast.makeText(getContext(), "인식에 문제가 발생하였습니다. 위의 이미지가 QR코드가 포함된 사진인지 다시 확인해보세요", Toast.LENGTH_SHORT).show();
+                            textView.setText("");
+                            e1.printStackTrace();
+                        } catch (UnsupportedEncodingException e1) {
+                            e1.printStackTrace();
+                        }
                     } catch (UnsupportedEncodingException e) {
                         e.printStackTrace();
                     }
