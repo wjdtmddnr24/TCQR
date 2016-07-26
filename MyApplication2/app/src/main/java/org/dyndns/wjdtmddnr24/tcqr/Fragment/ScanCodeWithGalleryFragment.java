@@ -2,6 +2,9 @@ package org.dyndns.wjdtmddnr24.tcqr.Fragment;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -17,6 +20,7 @@ import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -32,6 +36,7 @@ import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
 
+import org.dyndns.wjdtmddnr24.tcqr.EncodeActivity;
 import org.dyndns.wjdtmddnr24.tcqr.R;
 
 import java.io.File;
@@ -43,7 +48,10 @@ public class ScanCodeWithGalleryFragment extends Fragment implements View.OnClic
     private OnFragmentInteractionListener mListener;
     private TextView textView;
     private Button button;
+    private Button button2;
     public static final int REQUEST_GALLERY_IMAGE_CROP = 1;
+    public static final int REQUEST_READ_EXTERNAL_STORAGE = 1;
+
     private ImageView imageView;
 
 
@@ -67,6 +75,8 @@ public class ScanCodeWithGalleryFragment extends Fragment implements View.OnClic
         textView = (TextView) view.findViewById(R.id.text);
         imageView = (ImageView) view.findViewById(R.id.imageView);
         button = (Button) view.findViewById(R.id.button);
+        button2 = (Button) view.findViewById(R.id.button2);
+        button2.setOnClickListener(this);
         button.setOnClickListener(this);
         return view;
     }
@@ -88,6 +98,55 @@ public class ScanCodeWithGalleryFragment extends Fragment implements View.OnClic
         mListener = null;
     }
 
+    private void clipboardDecode() throws IOException {
+        ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+        ContentResolver cr = getContext().getContentResolver();
+        ClipData clip = clipboard.getPrimaryClip();
+        if (clip != null) {
+            ClipData.Item item = clip.getItemAt(0);
+            Uri pasteUri = item.getUri();
+            if (pasteUri != null) {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), pasteUri);
+                if (bitmap != null) {
+                    imageView.setImageBitmap(bitmap);
+                    try {
+                        int width = bitmap.getWidth(), height = bitmap.getHeight();
+                        int[] pixels = new int[width * height];
+                        bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+                        RGBLuminanceSource source = new RGBLuminanceSource(width, height, pixels);
+                        BinaryBitmap bBitmap = new BinaryBitmap(new HybridBinarizer(source));
+                        Result result = new QRCodeReader().decode(bBitmap);
+                        textView.setText(result.toString() + result.getBarcodeFormat().name());
+                    } catch (FormatException | ChecksumException | NotFoundException e) {
+                        e.printStackTrace();
+                        Toast.makeText(getContext(), "인식에 문제가 발생하였습니다. 위의 이미지가 QR코드가 포함된 사진인지 다시 확인해보세요", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(getContext(), "클립보드에서 이미지를 가져오는데 문제가 발생하였습니다", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(getContext(), "클립보드에서 이미지를 가져올 수 없습니다", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(getContext(), "클립보드에서 이미지가 없습니다", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_READ_EXTERNAL_STORAGE) {
+            if (grantResults.length == 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(getContext(), "본 기능을 사용하려면 읽기 권한이 필요합니다. 읽기권한을 주시기 바랍니다", Toast.LENGTH_SHORT).show();
+            } else {
+                try {
+                    clipboardDecode();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
@@ -96,9 +155,20 @@ public class ScanCodeWithGalleryFragment extends Fragment implements View.OnClic
                 intent.setType("image/*");
                 startActivityForResult(Intent.createChooser(intent, "이미지를 선택하세요"), REQUEST_GALLERY_IMAGE_CROP);
                 break;
+            case R.id.button2:
+                if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_READ_EXTERNAL_STORAGE);
+                } else {
+                    try {
+                        clipboardDecode();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                break;
         }
     }
-
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

@@ -123,7 +123,7 @@ public class ScanCodeWithCameraFragment extends Fragment implements View.OnClick
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == EncodeActivity.REQUEST_WRITE_PERMISSION) {
             if (grantResults.length == 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(getContext(), "쓰기권한을 주시기 바랍니다", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "본 기능을 사용하려면 쓰기 권한이 필요합니다. 쓰기권한을 주시기 바랍니다.", Toast.LENGTH_SHORT).show();
             }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -143,7 +143,7 @@ public class ScanCodeWithCameraFragment extends Fragment implements View.OnClick
             case R.id.imageView:
                 if (imageView.getDrawable() != null) {
                     new AlertDialog.Builder(getContext()).setTitle("기능 선택").setItems(new CharSequence[]{
-                            "이미지 저장", "공유","클립보드에 복사"
+                            "이미지 저장", "공유", "클립보드에 복사"
                     }, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
@@ -192,7 +192,7 @@ public class ScanCodeWithCameraFragment extends Fragment implements View.OnClick
 
     private String saveQRCode(Bitmap bitmap) throws FileNotFoundException {
         if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, EncodeActivity.REQUEST_WRITE_PERMISSION);
+            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, EncodeActivity.REQUEST_WRITE_PERMISSION);
         }
         String ex_storage = Environment.getExternalStorageDirectory().getAbsolutePath();
         String foler_name = "/TCQR/Camera/";
@@ -216,7 +216,7 @@ public class ScanCodeWithCameraFragment extends Fragment implements View.OnClick
             case R.id.imageView:
                 if (imageView.getDrawable() != null) {
                     new AlertDialog.Builder(getContext()).setTitle("기능 선택").setItems(new CharSequence[]{
-                            "이미지 저장", "공유","클립보드에 복사"
+                            "이미지 저장", "공유", "클립보드에 복사"
                     }, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {

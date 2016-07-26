@@ -272,7 +272,7 @@ public class EncodeActivity extends AppCompatActivity implements NavigationView.
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == REQUEST_WRITE_PERMISSION) {
             if (grantResults.length == 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(EncodeActivity.this, "쓰기권한을 주시기 바랍니다", Toast.LENGTH_SHORT).show();
+                Toast.makeText(EncodeActivity.this, "본 기능을 사용하려면 쓰기 권한이 필요합니다. 쓰기권한을 주시기 바랍니다.", Toast.LENGTH_SHORT).show();
             }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
