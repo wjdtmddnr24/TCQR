@@ -27,12 +27,15 @@ import com.google.zxing.ChecksumException;
 import com.google.zxing.FormatException;
 import com.google.zxing.NotFoundException;
 import com.google.zxing.WriterException;
+import com.orhanobut.logger.Logger;
 
 import org.dyndns.wjdtmddnr24.tcqr.Fragment.ScanCodeWithCameraFragment;
 import org.dyndns.wjdtmddnr24.tcqr.Fragment.ScanCodeWithGalleryFragment;
 import org.dyndns.wjdtmddnr24.tcqr.Fragment.ScanCodeWithURLFragment;
+import org.dyndns.wjdtmddnr24.tcqr.Util.CompressUtils;
 import org.dyndns.wjdtmddnr24.tcqr.Util.QRCodeUtils;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,8 +74,8 @@ public class MainActivity extends AppCompatActivity
         tablayout.getTabAt(0).setIcon(R.drawable.ic_menu_white_camera);
         tablayout.getTabAt(1).setIcon(R.drawable.ic_menu_white_gallery);
         tablayout.getTabAt(2).setIcon(R.drawable.ic_cloud_download_white_24dp);
-    }
 
+    }
     @Override
     protected void onResume() {
         super.onResume();
