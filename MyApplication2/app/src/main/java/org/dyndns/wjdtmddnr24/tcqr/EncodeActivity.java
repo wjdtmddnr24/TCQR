@@ -16,6 +16,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -41,13 +42,19 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.zxing.BarcodeFormat;
+import com.google.zxing.ChecksumException;
 import com.google.zxing.EncodeHintType;
+import com.google.zxing.FormatException;
 import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.NotFoundException;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitArray;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
+import com.orhanobut.logger.Logger;
 
+import org.dyndns.wjdtmddnr24.tcqr.Util.CompressUtils;
+import org.dyndns.wjdtmddnr24.tcqr.Util.QRCodeUtils;
 import org.tukaani.xz.LZMA2Options;
 import org.tukaani.xz.UnsupportedOptionsException;
 import org.tukaani.xz.XZ;
@@ -66,7 +73,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Hashtable;
 
-public class EncodeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, View.OnLongClickListener {
+public class EncodeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, View.OnLongClickListener, DialogInterface.OnClickListener {
 
     public static final int REQUEST_WRITE_PERMISSION = 10;
     private ImageView imageView;
@@ -140,32 +147,31 @@ public class EncodeActivity extends AppCompatActivity implements NavigationView.
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(this, "먼저 쓰기 권한을 주시기 바랍니다", Toast.LENGTH_SHORT).show();
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, EncodeActivity.REQUEST_WRITE_PERMISSION);
+            return true;
+        }
         int id = item.getItemId();
         switch (id) {
             case R.id.menu_save:
                 if (imageView.getDrawable() == null) {
                     editText.setError("먼저 코드를 생성해 주세요");
                     editText.requestFocus();
-                } else {
-                    try {
-                        String filepath = saveQRCode(((BitmapDrawable) imageView.getDrawable()).getBitmap());
-                        Toast.makeText(EncodeActivity.this, filepath + " 로 파일을 저장하였습니다.", Toast.LENGTH_SHORT).show();
-                        MediaScannerConnection.scanFile(EncodeActivity.this, new String[]{filepath}, null, null);
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                        Toast.makeText(EncodeActivity.this, "파일을 저장하는데 문제가 발생하였습니다.", Toast.LENGTH_SHORT).show();
-                    }
+                    return true;
+                }
+                try {
+                    Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+                    QRCodeUtils.saveQRCode(this, bitmap, "/TCQR/Create/");
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    Toast.makeText(EncodeActivity.this, "파일을 저장하는데 문제가 발생하였습니다.", Toast.LENGTH_SHORT).show();
                 }
                 break;
             case R.id.menu_share:
                 if (imageView.getDrawable() == null) {
                     editText.setError("먼저 코드를 생성해 주세요");
                     editText.requestFocus();
-                    return true;
-                }
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, "먼저 쓰기 권한을 주시기 바랍니다", Toast.LENGTH_SHORT).show();
-                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, EncodeActivity.REQUEST_WRITE_PERMISSION);
                     return true;
                 }
                 Bitmap QRCode = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
@@ -202,6 +208,7 @@ public class EncodeActivity extends AppCompatActivity implements NavigationView.
         switch (view.getId()) {
             case R.id.button:
                 //키보드 내림
+                Logger.d("키보드 내림");
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                 //내용 없는 경우
@@ -210,95 +217,15 @@ public class EncodeActivity extends AppCompatActivity implements NavigationView.
                     editText.requestFocus();
                     return;
                 }
-                String encodeValue = editText.getText().toString();
-                if (encodeValue.getBytes().length > 2000) {
-                    Toast.makeText(EncodeActivity.this, "문자가 너무 커서 압축 후 QR코드를 생성합니다.", Toast.LENGTH_SHORT).show();
-                    try {
-                        compressTextTask = new CompressTextTask(encodeValue.getBytes("UTF-8").length);
-                        compressTextTask.execute(encodeValue.getBytes("UTF-8"));
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                        Toast.makeText(EncodeActivity.this, "문자를 받아오는데 문제가 발생하였습니다.", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    try {
-                        String encodeValueISO = new String(encodeValue.getBytes("UTF-8"), "ISO-8859-1");
-                        QRCodeWriter writer = new QRCodeWriter();
-                        Hashtable hints = new Hashtable();
-                        hints.put(EncodeHintType.CHARACTER_SET, "ISO-8859-1");
-                        BitMatrix result = new MultiFormatWriter().encode(encodeValueISO, BarcodeFormat.QR_CODE, 500, 500, hints);
-                        int w = result.getWidth();
-                        int h = result.getHeight();
-                        int[] pixels = new int[w * h];
-                        for (int y = 0; y < h; y++) {
-                            int offset = y * w;
-                            for (int x = 0; x < w; x++) {
-                                pixels[offset + x] = result.get(x, y) ? 0xFF000000 : 0xFFFFFFFF;
-                            }
-                        }
-                        Bitmap bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-                        bitmap.setPixels(pixels, 0, w, 0, 0, w, h);
-                        imageView.setImageBitmap(bitmap);
-                        Toast.makeText(EncodeActivity.this, "QR코드를 생성하였습니다.", Toast.LENGTH_SHORT).show();
-                    } catch (WriterException | UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-                }
+                String text = editText.getText().toString();
+                EncodeTask encodeTask = new EncodeTask(this);
+                encodeTask.execute(text);
                 break;
             case R.id.imageView:
                 if (imageView.getDrawable() != null) {
                     new AlertDialog.Builder(this).setTitle("기능 선택").setItems(new CharSequence[]{
                             "이미지 저장", "공유", "클립보드로 복사"
-                    }, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            switch (i) {
-                                case 0:
-                                    try {
-                                        String filepath = saveQRCode(((BitmapDrawable) imageView.getDrawable()).getBitmap());
-                                        Toast.makeText(EncodeActivity.this, filepath + " 로 파일을 저장하였습니다.", Toast.LENGTH_SHORT).show();
-                                        MediaScannerConnection.scanFile(EncodeActivity.this, new String[]{filepath}, null, null);
-                                    } catch (FileNotFoundException e) {
-                                        e.printStackTrace();
-                                        Toast.makeText(EncodeActivity.this, "파일을 저장하는데 문제가 발생하였습니다.", Toast.LENGTH_SHORT).show();
-                                    }
-                                    break;
-                                case 1: {
-                                    if (ContextCompat.checkSelfPermission(EncodeActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                                        Toast.makeText(EncodeActivity.this, "먼저 쓰기 권한을 주시기 바랍니다", Toast.LENGTH_SHORT).show();
-                                        ActivityCompat.requestPermissions(EncodeActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_PERMISSION);
-                                        return;
-                                    }
-                                    Bitmap QRCode = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
-                                    String pathofBmp = MediaStore.Images.Media.insertImage(getContentResolver(), QRCode, "Created By TCQR", null);
-                                    Uri bmpUri = Uri.parse(pathofBmp);
-                                    final Intent shareIntent = new Intent(Intent.ACTION_SEND);
-                                    shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                    shareIntent.putExtra(Intent.EXTRA_STREAM, bmpUri);
-                                    shareIntent.setType("image/png");
-                                    startActivity(shareIntent);
-                                    break;
-                                }
-                                case 2: {
-                                    if (ContextCompat.checkSelfPermission(EncodeActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                                        Toast.makeText(EncodeActivity.this, "먼저 쓰기 권한을 주시기 바랍니다", Toast.LENGTH_SHORT).show();
-                                        ActivityCompat.requestPermissions(EncodeActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_PERMISSION);
-                                        return;
-                                    }
-                                    ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                                    ContentResolver cr = getContentResolver();
-                                    Bitmap QRCode = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
-                                    String pathofBmp = MediaStore.Images.Media.insertImage(getContentResolver(), QRCode, "Created By TCQR", null);
-                                    Uri bmpUri = Uri.parse(pathofBmp);
-                                    ClipData clip = ClipData.newRawUri("uri", bmpUri);
-//                                    ClipData clip = ClipData.newUri(getContentResolver(), "Image", bmpUri);
-                                    clipboard.setPrimaryClip(clip);
-                                    Toast.makeText(EncodeActivity.this, "클립보드로 복사하였습니다.", Toast.LENGTH_SHORT).show();
-                                    break;
-                                }
-                            }
-                        }
-                    }).create().show();
+                    }, this).create().show();
                 }
                 break;
         }
@@ -306,7 +233,6 @@ public class EncodeActivity extends AppCompatActivity implements NavigationView.
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.encode_main, menu);
         return true;
     }
@@ -321,6 +247,7 @@ public class EncodeActivity extends AppCompatActivity implements NavigationView.
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
+    @Deprecated
     private String saveQRCode(Bitmap bitmap) throws FileNotFoundException {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_PERMISSION);
@@ -348,56 +275,117 @@ public class EncodeActivity extends AppCompatActivity implements NavigationView.
                 if (imageView.getDrawable() != null) {
                     new AlertDialog.Builder(this).setTitle("기능 선택").setItems(new CharSequence[]{
                             "이미지 저장", "공유", "클립보드로 복사"
-                    }, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            switch (i) {
-                                case 0:
-                                    try {
-                                        String filepath = saveQRCode(((BitmapDrawable) imageView.getDrawable()).getBitmap());
-                                        Toast.makeText(EncodeActivity.this, filepath + " 로 파일을 저장하였습니다.", Toast.LENGTH_SHORT).show();
-                                        MediaScannerConnection.scanFile(EncodeActivity.this, new String[]{filepath}, null, null);
-                                    } catch (FileNotFoundException e) {
-                                        e.printStackTrace();
-                                        Toast.makeText(EncodeActivity.this, "파일을 저장하는데 문제가 발생하였습니다.", Toast.LENGTH_SHORT).show();
-                                    }
-                                    break;
-                                case 1: {
-                                    if (ContextCompat.checkSelfPermission(EncodeActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                                        Toast.makeText(EncodeActivity.this, "먼저 쓰기 권한을 주시기 바랍니다", Toast.LENGTH_SHORT).show();
-                                        ActivityCompat.requestPermissions(EncodeActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_PERMISSION);
-                                        return;
-                                    }
-                                    Bitmap QRCode = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
-                                    String pathofBmp = MediaStore.Images.Media.insertImage(getContentResolver(), QRCode, "Created By TCQR", null);
-                                    Uri bmpUri = Uri.parse(pathofBmp);
-                                    final Intent shareIntent = new Intent(Intent.ACTION_SEND);
-                                    shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                    shareIntent.putExtra(Intent.EXTRA_STREAM, bmpUri);
-                                    shareIntent.setType("image/png");
-                                    startActivity(shareIntent);
-                                    break;
-                                }
-                                case 2: {
-                                    ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                                    ContentResolver cr = getContentResolver();
-                                    Bitmap QRCode = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
-                                    String pathofBmp = MediaStore.Images.Media.insertImage(getContentResolver(), QRCode, "Created By TCQR", null);
-                                    Uri bmpUri = Uri.parse(pathofBmp);
-                                    ClipData clip = ClipData.newRawUri("uri", bmpUri);
-//                                    ClipData clip = ClipData.newUri(getContentResolver(), "Image", bmpUri);
-                                    clipboard.setPrimaryClip(clip);
-                                    Toast.makeText(EncodeActivity.this, "클립보드로 복사하였습니다.", Toast.LENGTH_SHORT).show();
-                                    break;
-                                }
-                            }
-
-                        }
-                    }).create().show();
+                    }, this).create().show();
                 }
                 break;
         }
         return false;
+    }
+
+    @Override
+    public void onClick(DialogInterface dialog, int i) {
+        if (ContextCompat.checkSelfPermission(EncodeActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(EncodeActivity.this, "먼저 쓰기 권한을 주시기 바랍니다", Toast.LENGTH_SHORT).show();
+            ActivityCompat.requestPermissions(EncodeActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_PERMISSION);
+            return;
+        }
+        switch (i) {
+            case 0:
+                //파일 저장
+                try {
+                    Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+                    QRCodeUtils.saveQRCode(EncodeActivity.this, bitmap, "/TCQR/Create/");
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    Toast.makeText(EncodeActivity.this, "파일을 저장하는데 문제가 발생하였습니다.", Toast.LENGTH_SHORT).show();
+                }
+                break;
+            case 1: {
+                //파일 공유
+                Bitmap QRCode = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+                String pathofBmp = MediaStore.Images.Media.insertImage(getContentResolver(), QRCode, "Created By TCQR", null);
+                Uri bmpUri = Uri.parse(pathofBmp);
+                final Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                shareIntent.putExtra(Intent.EXTRA_STREAM, bmpUri);
+                shareIntent.setType("image/png");
+                startActivity(shareIntent);
+                break;
+            }
+            case 2: {
+                // 파일 클립보드로 저장
+                ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                Bitmap QRCode = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+                String pathofBmp = MediaStore.Images.Media.insertImage(getContentResolver(), QRCode, "Created By TCQR", null);
+                Uri bmpUri = Uri.parse(pathofBmp);
+                ClipData clip = ClipData.newRawUri("uri", bmpUri);
+                clipboard.setPrimaryClip(clip);
+                Toast.makeText(EncodeActivity.this, "클립보드로 복사하였습니다.", Toast.LENGTH_SHORT).show();
+                break;
+            }
+        }
+    }
+
+    class EncodeTask extends AsyncTask<String, Void, Bitmap> {
+        private ProgressDialog progressDialog;
+        private Context context;
+        private Handler handler;
+
+        public EncodeTask(Context context) {
+            this.context = context;
+            handler = new Handler();
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog = ProgressDialog.show(context, "QR코드를 생성하는중입니다.", "잠시만 기다리세요");
+        }
+
+        @Override
+        protected Bitmap doInBackground(String... params) {
+            String text = params[0];
+            //문자 압축
+            if (text.getBytes().length > 2000) {
+                handler.post(() -> Toast.makeText(EncodeActivity.this, "문자가 너무 커서 압축 후 QR코드를 생성합니다.", Toast.LENGTH_SHORT).show());
+                try {
+                    text = CompressUtils.compress(text);
+                    text = CompressUtils.addMarker(text);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    handler.post(() -> {
+                        if (progressDialog.isShowing())
+                            progressDialog.dismiss();
+                        Toast.makeText(EncodeActivity.this, "문자를 압축하는데 문제가 발생하였습니다.", Toast.LENGTH_SHORT).show();
+                    });
+                    return null;
+                }
+            }
+            try {
+                return QRCodeUtils.EncodeToQRCode(500, 500, text);
+            } catch (WriterException | FormatException | UnsupportedEncodingException | NotFoundException | ChecksumException e) {
+                e.printStackTrace();
+                new Handler().post(() -> {
+                    if (progressDialog.isShowing())
+                        progressDialog.dismiss();
+                    Toast.makeText(EncodeActivity.this, "QR코드를 생성하는데 문제가 발생하였습니다.", Toast.LENGTH_SHORT).show();
+                });
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            super.onPostExecute(bitmap);
+            if (progressDialog != null && progressDialog.isShowing()) {
+                progressDialog.dismiss();
+                progressDialog = null;
+
+            }
+            if (bitmap != null) {
+                imageView.setImageBitmap(bitmap);
+            }
+        }
     }
 
     class CompressTextTask extends AsyncTask<byte[], Integer, byte[]> {
@@ -419,7 +407,6 @@ public class EncodeActivity extends AppCompatActivity implements NavigationView.
             progressDialog.setMax(size / 4096);
             progressDialog.setMessage("잠시만 기다려주세요");
             progressDialog.show();
-//            progressDialog = ProgressDialog.show(EncodeActivity.this, "문자를 압축하는 중입니다", "잠시만 기다려주세요.");
         }
 
         @Override
@@ -447,13 +434,10 @@ public class EncodeActivity extends AppCompatActivity implements NavigationView.
                 out.finish();
 
                 byte[] original = buffer.toByteArray();
-//                String rr = "TCQREncoded:" + (char) 0x04 + new String(buffer.toByteArray(), "ISO-8859-1");
                 String rr = Base64.encodeToString(buffer.toByteArray(), 0);
                 rr = new String(Base64.decode(rr, 0));
                 byte[] results = rr.getBytes("ISO-8859-1");
-
                 result = buffer.toByteArray();
-
 
                 ByteArrayInputStream c_input = new ByteArrayInputStream(buffer.toByteArray());
 //                ByteArrayInputStream c_input = new ByteArrayInputStream(results);

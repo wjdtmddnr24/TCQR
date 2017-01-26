@@ -76,6 +76,7 @@ public class MainActivity extends AppCompatActivity
         tablayout.getTabAt(2).setIcon(R.drawable.ic_cloud_download_white_24dp);
 
     }
+
     @Override
     protected void onResume() {
         super.onResume();

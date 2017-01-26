@@ -22,6 +22,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -158,7 +159,7 @@ public class ScanCodeWithGalleryFragment extends Fragment implements View.OnClic
                             String compressedValue = result.getText().substring(("TCQREncoded:" + (char) 0x04).length());
                             Toast.makeText(getContext(), "본 내용이 TCQR로 압축됨을 인식하였습니다. 압축해제를 합니다", Toast.LENGTH_SHORT).show();
                             decompressTextTask = new DecompressTextTask(compressedValue.length());
-                            decompressTextTask.execute(compressedValue.getBytes("ISO-8859-1"));
+                            decompressTextTask.execute(Base64.decode(compressedValue.getBytes("ISO-8859-1"), 0));
                         } else {
                             textView.setText(new String(result.toString().getBytes("ISO-8859-1"), "UTF-8") + result.getBarcodeFormat().name());
 

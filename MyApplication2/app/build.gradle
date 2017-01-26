@@ -1,15 +1,22 @@
 apply plugin: 'com.android.application'
+apply plugin: 'me.tatarka.retrolambda'
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion "24.0.1"
+    compileSdkVersion 25
+    buildToolsVersion '25.0.2'
     defaultConfig {
         applicationId "org.dyndns.wjdtmddnr24.tcqr"
-        minSdkVersion 22
-        targetSdkVersion 24
+        minSdkVersion 21
+        targetSdkVersion 25
         versionCode 1
         versionName "1.0"
     }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -27,14 +34,14 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:24.1.1'
-    compile 'com.android.support:support-v4:24.1.1'
-    compile 'com.android.support:design:24.1.1'
+    compile 'com.android.support:appcompat-v7:25.1.0'
+    compile 'com.android.support:support-v4:25.1.0'
+    compile 'com.android.support:design:25.1.0'
     compile 'com.journeyapps:zxing-android-embedded:3.3.0'
-    compile group: 'com.google.zxing', name: 'core', version: '3.3.0'
+    compile 'com.google.zxing:core:3.3.0'
     compile 'com.github.bumptech.glide:glide:3.7.0'
     compile 'org.tukaani:xz:1.5'
-    compile group: 'com.google.zxing', name: 'javase', version: '3.3.0'
-    compile group: 'org.apache.httpcomponents', name: 'httpcore', version: '4.0-alpha6'
+    compile 'com.google.zxing:javase:3.3.0'
+    compile 'org.apache.httpcomponents:httpcore:4.0-alpha6'
     compile 'com.orhanobut:logger:1.15'
 }
