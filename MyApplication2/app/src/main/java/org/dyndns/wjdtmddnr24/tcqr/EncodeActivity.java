@@ -140,9 +140,6 @@ public class EncodeActivity extends AppCompatActivity implements NavigationView.
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         switch (id) {
             case R.id.menu_save:
@@ -193,9 +190,7 @@ public class EncodeActivity extends AppCompatActivity implements NavigationView.
         switch (id) {
             case R.id.nav_recognize_decoder:
                 startActivity(new Intent(EncodeActivity.this, MainActivity.class));
-                startActivity(new Intent(EncodeActivity.this, MainActivity.class));
         }
-
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -206,8 +201,10 @@ public class EncodeActivity extends AppCompatActivity implements NavigationView.
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.button:
+                //키보드 내림
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                //내용 없는 경우
                 if (TextUtils.isEmpty(editText.getText().toString())) {
                     editText.setError("생성하고자 하는 내용을 입력해주세요.");
                     editText.requestFocus();
