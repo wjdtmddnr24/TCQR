@@ -1,57 +1,54 @@
 package org.dyndns.wjdtmddnr24.tcqr;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
-import android.util.Log;
-import android.view.View;
-import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-
-import com.google.zxing.ChecksumException;
-import com.google.zxing.FormatException;
-import com.google.zxing.NotFoundException;
-import com.google.zxing.WriterException;
-import com.orhanobut.logger.Logger;
+import android.view.View;
 
 import org.dyndns.wjdtmddnr24.tcqr.Fragment.ScanCodeWithCameraFragment;
 import org.dyndns.wjdtmddnr24.tcqr.Fragment.ScanCodeWithGalleryFragment;
 import org.dyndns.wjdtmddnr24.tcqr.Fragment.ScanCodeWithURLFragment;
-import org.dyndns.wjdtmddnr24.tcqr.Util.CompressUtils;
-import org.dyndns.wjdtmddnr24.tcqr.Util.QRCodeUtils;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.Unbinder;
+
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, ScanCodeWithCameraFragment.OnFragmentInteractionListener, ScanCodeWithGalleryFragment.OnFragmentInteractionListener, ScanCodeWithURLFragment.OnFragmentInteractionListener {
+        implements NavigationView.OnNavigationItemSelectedListener {
 
+    @BindView(R.id.title1)
+    CardView title1;
+    @BindView(R.id.title2)
+    CardView title2;
     private ViewPager viewPager;
     private MainViewPagerAdapter adapter;
     private TabLayout tablayout;
+    private Unbinder unbinder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        unbinder = ButterKnife.bind(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -65,16 +62,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.getMenu().getItem(0).setChecked(true);
 
-        tablayout = (TabLayout) findViewById(R.id.tablayout);
-        viewPager = (ViewPager) findViewById(R.id.viewpager);
-        adapter = new MainViewPagerAdapter(getSupportFragmentManager());
-        viewPager.setAdapter(adapter);
-        viewPager.setOffscreenPageLimit(3);
-        tablayout.setupWithViewPager(viewPager);
-        tablayout.getTabAt(0).setIcon(R.drawable.ic_menu_white_camera);
-        tablayout.getTabAt(1).setIcon(R.drawable.ic_menu_white_gallery);
-        tablayout.getTabAt(2).setIcon(R.drawable.ic_cloud_download_white_24dp);
-
+//        startActivity(new Intent(MainActivity.this, DecodeActivity.class));
     }
 
     @Override
@@ -117,6 +105,12 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unbinder.unbind();
+    }
+
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -132,19 +126,16 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    @Override
-    public void onFragmentInteractionGallery(Uri uri) {
-
-    }
-
-    @Override
-    public void onFragmentInteractionCamera(Uri uri) {
-
-    }
-
-    @Override
-    public void onFragmentInteractionURL(Uri uri) {
-
+    @OnClick({R.id.title1, R.id.title2})
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.title1:
+                startActivity(new Intent(MainActivity.this, DecodeActivity.class));
+                break;
+            case R.id.title2:
+                startActivity(new Intent(MainActivity.this, EncodeActivity.class));
+                break;
+        }
     }
 
     class MainViewPagerAdapter extends FragmentStatePagerAdapter {
