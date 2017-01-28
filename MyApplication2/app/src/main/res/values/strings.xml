@@ -12,4 +12,8 @@
     <string name="title2">QR코드 생성</string>
     <string name="info1">생성된 QR코드를 인식할 수 있습니다.</string>
     <string name="info2">새로운 QR코드를 생성할 수 있습니다.</string>
+    <string name="album_info1">카메라 앨범 또는 클립보드의 QR코드를 인식합니다.\n아래의 버튼을 눌러 방식을 선택하십시오</string>
+    <string name="url_info1">아래 URL를 입력하시고 이름을 누르시면\n이미지를 자동으로 다운로드하여 인식합니다.</string>
+    <string name="album_info"><![CDATA[<b><font color=#03A9F4>카메라</b>]]> 앨범 또는 <![CDATA[<b><font color=#03A9F4>클립보드</b>]]>의 QR코드를 인식합니다.<![CDATA[<br>]]>아래의 버튼을 눌러 방식을 선택하십시오.</string>
+    <string name="url_info">아래 <![CDATA[<b><font color=#03A9F4>URL</b>]]>를 입력하시고 <![CDATA[<b><font color=#03A9F4>이동</b>]]>을 누르시면<![CDATA[<br>]]><![CDATA[<b><font color=#03A9F4>이미지를 자동으로 다운로드</b>]]>하여 인식합니다.</string>
 </resources>

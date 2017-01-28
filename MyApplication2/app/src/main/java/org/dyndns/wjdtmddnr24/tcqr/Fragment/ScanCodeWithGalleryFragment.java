@@ -14,19 +14,17 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.text.Html;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -36,7 +34,6 @@ import com.bumptech.glide.Glide;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.ChecksumException;
 import com.google.zxing.DecodeHintType;
-import com.google.zxing.EncodeHintType;
 import com.google.zxing.FormatException;
 import com.google.zxing.NotFoundException;
 import com.google.zxing.RGBLuminanceSource;
@@ -44,20 +41,24 @@ import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
 
-import org.dyndns.wjdtmddnr24.tcqr.EncodeActivity;
 import org.dyndns.wjdtmddnr24.tcqr.R;
 import org.tukaani.xz.XZInputStream;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Hashtable;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+
 public class ScanCodeWithGalleryFragment extends Fragment implements View.OnClickListener, View.OnLongClickListener {
 
     private static final int REQUEST_PERMISSION_READ_EXTERNAL_STORAGE = 10;
+    @BindView(R.id.album_info)
+    TextView albumInfo;
     private OnFragmentInteractionListener mListener;
     private TextView textView;
     private Button button;
@@ -67,6 +68,7 @@ public class ScanCodeWithGalleryFragment extends Fragment implements View.OnClic
 
     private ImageView imageView;
     private DecompressTextTask decompressTextTask;
+    private Unbinder unbinder;
 
 
     public ScanCodeWithGalleryFragment() {
@@ -93,7 +95,15 @@ public class ScanCodeWithGalleryFragment extends Fragment implements View.OnClic
         button2 = (Button) view.findViewById(R.id.button2);
         button2.setOnClickListener(this);
         button.setOnClickListener(this);
+        unbinder = ButterKnife.bind(this, view);
+        albumInfo.setText(Html.fromHtml(getContext().getResources().getString(R.string.album_info)));
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
     }
 
     @Override
@@ -204,7 +214,7 @@ public class ScanCodeWithGalleryFragment extends Fragment implements View.OnClic
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.button:
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 intent.setType("image/*");
                 startActivityForResult(Intent.createChooser(intent, "이미지를 선택하세요"), REQUEST_GALLERY_IMAGE_CROP);
                 break;

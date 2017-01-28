@@ -1,6 +1,8 @@
 package org.dyndns.wjdtmddnr24.tcqr.Fragment;
 
 
+import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -15,11 +17,23 @@ import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
 public class SimpleScannerFragment extends Fragment implements ZXingScannerView.ResultHandler {
     private ZXingScannerView mScannerView;
+    private OnFragmentInteractionListener mListener;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mScannerView = new ZXingScannerView(getActivity());
         return mScannerView;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof ScanCodeWithGalleryFragment.OnFragmentInteractionListener) {
+            mListener = (SimpleScannerFragment.OnFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
     }
 
     @Override
@@ -41,5 +55,9 @@ public class SimpleScannerFragment extends Fragment implements ZXingScannerView.
     public void onPause() {
         super.onPause();
         mScannerView.stopCamera();
+    }
+
+    public interface OnFragmentInteractionListener {
+        void onFragmentInteractionSimpleCamera(Uri uri);
     }
 }

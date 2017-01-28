@@ -21,6 +21,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.text.Html;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,26 +37,19 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.GlideBitmapDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
-import com.google.zxing.BarcodeFormat;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.ChecksumException;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.FormatException;
-import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.NotFoundException;
 import com.google.zxing.RGBLuminanceSource;
 import com.google.zxing.Result;
-import com.google.zxing.WriterException;
-import com.google.zxing.common.BitMatrix;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
-import com.google.zxing.qrcode.QRCodeWriter;
 
 import org.dyndns.wjdtmddnr24.tcqr.EncodeActivity;
 import org.dyndns.wjdtmddnr24.tcqr.R;
-import org.tukaani.xz.LZMA2Options;
 import org.tukaani.xz.XZInputStream;
-import org.tukaani.xz.XZOutputStream;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -69,9 +63,15 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.concurrent.ExecutionException;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+
 
 public class ScanCodeWithURLFragment extends Fragment implements View.OnClickListener, View.OnLongClickListener {
 
+    @BindView(R.id.url_info)
+    TextView urlInfo;
     private OnFragmentInteractionListener mListener;
     private TextView textView;
     private Button button;
@@ -79,6 +79,7 @@ public class ScanCodeWithURLFragment extends Fragment implements View.OnClickLis
     private ImageView imageView;
     private Handler handler;
     private DecompressTextTask decompressTextTask = null;
+    private Unbinder unbinder;
 
     public ScanCodeWithURLFragment() {
     }
@@ -108,6 +109,9 @@ public class ScanCodeWithURLFragment extends Fragment implements View.OnClickLis
 
         button = (Button) view.findViewById(R.id.button);
         button.setOnClickListener(this);
+        unbinder = ButterKnife.bind(this, view);
+        urlInfo.setText(Html.fromHtml(getContext().getResources().getString(R.string.url_info)));
+
         return view;
     }
 
@@ -115,6 +119,12 @@ public class ScanCodeWithURLFragment extends Fragment implements View.OnClickLis
         if (mListener != null) {
             mListener.onFragmentInteractionURL(uri);
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
     }
 
     @Override
@@ -188,7 +198,7 @@ public class ScanCodeWithURLFragment extends Fragment implements View.OnClickLis
                                     Bitmap QRCode = ((GlideBitmapDrawable) imageView.getDrawable().getCurrent()).getBitmap();
                                     String pathofBmp = MediaStore.Images.Media.insertImage(getContext().getContentResolver(), QRCode, "Created By TCQR", null);
                                     Uri bmpUri = Uri.parse(pathofBmp);
-                                    final Intent shareIntent = new Intent(android.content.Intent.ACTION_SEND);
+                                    final Intent shareIntent = new Intent(Intent.ACTION_SEND);
                                     shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                     shareIntent.putExtra(Intent.EXTRA_STREAM, bmpUri);
                                     shareIntent.setType("image/png");
@@ -250,7 +260,7 @@ public class ScanCodeWithURLFragment extends Fragment implements View.OnClickLis
                                     Bitmap QRCode = ((GlideBitmapDrawable) imageView.getDrawable().getCurrent()).getBitmap();
                                     String pathofBmp = MediaStore.Images.Media.insertImage(getContext().getContentResolver(), QRCode, "Created By TCQR", null);
                                     Uri bmpUri = Uri.parse(pathofBmp);
-                                    final Intent shareIntent = new Intent(android.content.Intent.ACTION_SEND);
+                                    final Intent shareIntent = new Intent(Intent.ACTION_SEND);
                                     shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                     shareIntent.putExtra(Intent.EXTRA_STREAM, bmpUri);
                                     shareIntent.setType("image/png");

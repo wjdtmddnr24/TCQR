@@ -41,7 +41,7 @@ public class CompressUtils {
         XZInputStream xzInput = new XZInputStream(input);
         int read;
         ByteArrayBuffer byteArrayBuffer = new ByteArrayBuffer(6);
-        byte[] buffer = new byte[10];
+        byte[] buffer = new byte[3000];
         while ((read = xzInput.read(buffer)) != -1) {
             byteArrayBuffer.append(buffer, 0, read);
         }

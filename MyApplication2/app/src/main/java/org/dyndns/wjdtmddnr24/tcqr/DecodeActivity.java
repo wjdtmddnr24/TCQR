@@ -21,7 +21,7 @@ import org.dyndns.wjdtmddnr24.tcqr.Fragment.SimpleScannerFragment;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DecodeActivity extends AppCompatActivity implements ScanCodeWithCameraFragment.OnFragmentInteractionListener, ScanCodeWithGalleryFragment.OnFragmentInteractionListener, ScanCodeWithURLFragment.OnFragmentInteractionListener {
+public class DecodeActivity extends AppCompatActivity implements ScanCodeWithCameraFragment.OnFragmentInteractionListener, ScanCodeWithGalleryFragment.OnFragmentInteractionListener, ScanCodeWithURLFragment.OnFragmentInteractionListener, SimpleScannerFragment.OnFragmentInteractionListener {
 
     private ViewPager viewPager;
     private MainViewPagerAdapter adapter;
@@ -32,8 +32,8 @@ public class DecodeActivity extends AppCompatActivity implements ScanCodeWithCam
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_decode);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle("QR코드 인식");
         setSupportActionBar(toolbar);
-
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -60,6 +60,11 @@ public class DecodeActivity extends AppCompatActivity implements ScanCodeWithCam
 
     }
 
+    @Override
+    public void onFragmentInteractionSimpleCamera(Uri uri) {
+
+    }
+
     class MainViewPagerAdapter extends FragmentStatePagerAdapter {
         List<Fragment> fragmentList;
 
@@ -67,7 +72,7 @@ public class DecodeActivity extends AppCompatActivity implements ScanCodeWithCam
             super(fm);
             fragmentList = new ArrayList<>();
             fragmentList.add(new SimpleScannerFragment());
-//            fragmentList.add(ScanCodeWithCameraFragment.newInstance());
+//          fragmentList.add(ScanCodeWithCameraFragment.newInstance());
             fragmentList.add(ScanCodeWithGalleryFragment.newInstance());
             fragmentList.add(ScanCodeWithURLFragment.newInstance());
         }
