@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
         switch (id) {
             case R.id.nav_text_encoder:
-                startActivity(new Intent(MainActivity.this, EncodeActivity.class));
+                startActivity(new Intent(MainActivity.this, EncodeQRActivity.class));
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -137,6 +137,7 @@ public class MainActivity extends AppCompatActivity
                 break;
         }
     }
+
 
     class MainViewPagerAdapter extends FragmentStatePagerAdapter {
         List<Fragment> fragmentList;

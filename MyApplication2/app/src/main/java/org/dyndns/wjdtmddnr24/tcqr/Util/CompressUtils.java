@@ -58,7 +58,7 @@ public class CompressUtils {
     }
 
     public static String addMarker(String compressed) throws UnsupportedEncodingException {
-        return "TCQREncoded:" + (char) 0x04 + compressed;
+        return "TCQREncoded:" + (char) 0x04 + new String(compressed.getBytes(), "ISO-8859-1");
     }
 
     public static String removeMarker(String content) {

@@ -58,6 +58,6 @@ public class SimpleScannerFragment extends Fragment implements ZXingScannerView.
     }
 
     public interface OnFragmentInteractionListener {
-        void onFragmentInteractionSimpleCamera(Uri uri);
+        void onFragmentInteractionSimpleCamera(Result result);
     }
 }

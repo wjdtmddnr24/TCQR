@@ -10,8 +10,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.media.Image;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -19,7 +17,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -47,7 +44,7 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.google.zxing.qrcode.QRCodeReader;
 
-import org.dyndns.wjdtmddnr24.tcqr.EncodeActivity;
+import org.dyndns.wjdtmddnr24.tcqr.EncodeQRActivity;
 import org.dyndns.wjdtmddnr24.tcqr.R;
 import org.tukaani.xz.XZInputStream;
 
@@ -57,7 +54,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Hashtable;
@@ -163,7 +159,7 @@ public class ScanCodeWithCameraFragment extends Fragment implements View.OnClick
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == EncodeActivity.REQUEST_WRITE_PERMISSION) {
+        if (requestCode == EncodeQRActivity.REQUEST_WRITE_PERMISSION) {
             if (grantResults.length == 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(getContext(), "본 기능을 사용하려면 쓰기 권한이 필요합니다. 쓰기권한을 주시기 바랍니다.", Toast.LENGTH_SHORT).show();
             }
@@ -203,7 +199,7 @@ public class ScanCodeWithCameraFragment extends Fragment implements View.OnClick
                                 case 1: {
                                     if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                                         Toast.makeText(getContext(), "먼저 쓰기 권한을 주시기 바랍니다", Toast.LENGTH_SHORT).show();
-                                        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, EncodeActivity.REQUEST_WRITE_PERMISSION);
+                                        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, EncodeQRActivity.REQUEST_WRITE_PERMISSION);
                                         return;
                                     }
                                     Bitmap QRCode = ((GlideBitmapDrawable) imageView.getDrawable().getCurrent()).getBitmap();
@@ -219,7 +215,7 @@ public class ScanCodeWithCameraFragment extends Fragment implements View.OnClick
                                 case 2: {
                                     if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                                         Toast.makeText(getContext(), "먼저 쓰기 권한을 주시기 바랍니다", Toast.LENGTH_SHORT).show();
-                                        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, EncodeActivity.REQUEST_WRITE_PERMISSION);
+                                        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, EncodeQRActivity.REQUEST_WRITE_PERMISSION);
                                         return;
                                     }
                                     ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
@@ -244,7 +240,7 @@ public class ScanCodeWithCameraFragment extends Fragment implements View.OnClick
 
     private String saveQRCode(Bitmap bitmap) throws FileNotFoundException {
         if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, EncodeActivity.REQUEST_WRITE_PERMISSION);
+            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, EncodeQRActivity.REQUEST_WRITE_PERMISSION);
         }
         String ex_storage = Environment.getExternalStorageDirectory().getAbsolutePath();
         String foler_name = "/TCQR/Camera/";
@@ -286,7 +282,7 @@ public class ScanCodeWithCameraFragment extends Fragment implements View.OnClick
                                 case 1: {
                                     if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                                         Toast.makeText(getContext(), "먼저 쓰기 권한을 주시기 바랍니다", Toast.LENGTH_SHORT).show();
-                                        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, EncodeActivity.REQUEST_WRITE_PERMISSION);
+                                        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, EncodeQRActivity.REQUEST_WRITE_PERMISSION);
                                         return;
                                     }
                                     Bitmap QRCode = ((GlideBitmapDrawable) imageView.getDrawable().getCurrent()).getBitmap();
@@ -302,7 +298,7 @@ public class ScanCodeWithCameraFragment extends Fragment implements View.OnClick
                                 case 2: {
                                     if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                                         Toast.makeText(getContext(), "먼저 쓰기 권한을 주시기 바랍니다", Toast.LENGTH_SHORT).show();
-                                        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, EncodeActivity.REQUEST_WRITE_PERMISSION);
+                                        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, EncodeQRActivity.REQUEST_WRITE_PERMISSION);
                                         return;
                                     }
                                     ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);

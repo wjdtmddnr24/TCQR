@@ -51,4 +51,6 @@ dependencies {
     compile 'me.dm7.barcodescanner:zxing:1.9'
     compile 'com.android.support:support-v13:25.1.0'
     compile 'com.android.support:percent:25.1.0'
+    compile 'com.flipboard:bottomsheet-core:1.5.3'
+    compile 'com.flipboard:bottomsheet-commons:1.5.3'
 }

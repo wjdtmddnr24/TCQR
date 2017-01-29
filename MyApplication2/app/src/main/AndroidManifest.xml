@@ -5,8 +5,10 @@
     <uses-feature android:name="android.hardware.camera" />
 
     <uses-permission android:name="android.permission.CAMERA" />
+
     <uses-feature android:name="android.hardware.camera.autofocus" />
     <uses-feature android:name="android.hardware.camera.flash" />
+
     <uses-permission android:name="android.permission.FLASHLIGHT" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -33,7 +35,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".EncodeActivity"
+            android:name=".EncodeQRActivity"
             android:configChanges="orientation"
             android:label="@string/title_activity_encode"
             android:launchMode="singleTop"
@@ -49,6 +51,28 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.dyndns.wjdtmddnr24.tcqr.MainActivity" />
+        </activity>
+        <activity
+            android:name=".EncodeActivity"
+            android:label="@string/title_activity_encode"
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustResize">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="org.dyndns.wjdtmddnr24.tcqr.MainActivity" />
+        </activity>
+        <activity
+            android:name=".RenderActivity"
+            android:label="@string/title_activity_render"
+            android:parentActivityName=".EncodeActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="org.dyndns.wjdtmddnr24.tcqr.EncodeActivity" />
         </activity>
     </application>
 

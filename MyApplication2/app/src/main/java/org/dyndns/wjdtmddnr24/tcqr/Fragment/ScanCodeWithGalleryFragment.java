@@ -52,13 +52,21 @@ import java.util.Hashtable;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 
 public class ScanCodeWithGalleryFragment extends Fragment implements View.OnClickListener, View.OnLongClickListener {
 
     private static final int REQUEST_PERMISSION_READ_EXTERNAL_STORAGE = 10;
+
     @BindView(R.id.album_info)
     TextView albumInfo;
+    @BindView(R.id.album_image)
+    Button albumImage;
+    @BindView(R.id.album_clipboard)
+    Button albumClipboard;
+    @BindView(R.id.album_reset)
+    Button albumReset;
     private OnFragmentInteractionListener mListener;
     private TextView textView;
     private Button button;
@@ -210,7 +218,7 @@ public class ScanCodeWithGalleryFragment extends Fragment implements View.OnClic
         }
     }
 
-    @Override
+  /*  @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.button:
@@ -231,7 +239,7 @@ public class ScanCodeWithGalleryFragment extends Fragment implements View.OnClic
 
                 break;
         }
-    }
+    }*/
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -323,9 +331,22 @@ public class ScanCodeWithGalleryFragment extends Fragment implements View.OnClic
         return false;
     }
 
+    @OnClick({R.id.album_image, R.id.album_clipboard, R.id.album_reset})
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.album_image:
+                mListener.onFragmentInteractionGallery(null);
+                break;
+            case R.id.album_clipboard:
+                break;
+            case R.id.album_reset:
+                break;
+        }
+    }
+
 
     public interface OnFragmentInteractionListener {
-        void onFragmentInteractionGallery(Uri uri);
+        void onFragmentInteractionGallery(Result result);
     }
 
     class DecompressTextTask extends AsyncTask<byte[], Integer, String> {
