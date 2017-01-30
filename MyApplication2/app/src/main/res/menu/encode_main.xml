@@ -8,9 +8,5 @@
         android:title="공유"
         app:showAsAction="always" />
 
-    <item
-        android:id="@+id/menu_save"
-        android:icon="@drawable/ic_save_white_24dp"
-        android:title="이미지 저장"
-        app:showAsAction="always" />
+
 </menu>

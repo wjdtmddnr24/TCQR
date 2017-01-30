@@ -60,7 +60,6 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        navigationView.getMenu().getItem(0).setChecked(true);
 
 //        startActivity(new Intent(MainActivity.this, DecodeActivity.class));
     }
@@ -69,7 +68,6 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.getMenu().getItem(0).setChecked(true);
     }
 
     @Override
@@ -117,8 +115,12 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         switch (id) {
+            case R.id.nav_recognize_decoder:
+                startActivity(new Intent(MainActivity.this, DecodeActivity.class));
+                break;
             case R.id.nav_text_encoder:
-                startActivity(new Intent(MainActivity.this, EncodeQRActivity.class));
+                startActivity(new Intent(MainActivity.this, EncodeActivity.class));
+                break;
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

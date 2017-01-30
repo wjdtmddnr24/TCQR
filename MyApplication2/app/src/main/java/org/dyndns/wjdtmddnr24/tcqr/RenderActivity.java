@@ -8,7 +8,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -23,13 +22,16 @@ import android.support.v7.widget.Toolbar;
 import android.transition.AutoTransition;
 import android.transition.Slide;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.AlphaAnimation;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.flipboard.bottomsheet.BottomSheetLayout;
+import com.flipboard.bottomsheet.commons.IntentPickerSheetView;
 import com.google.zxing.ChecksumException;
 import com.google.zxing.FormatException;
 import com.google.zxing.NotFoundException;
@@ -42,15 +44,13 @@ import org.dyndns.wjdtmddnr24.tcqr.Util.QRCodeUtils;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Comparator;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 public class RenderActivity extends AppCompatActivity implements DialogInterface.OnClickListener {
     private static final int REQUEST_WRITE_PERMISSION = 10;
@@ -64,12 +64,15 @@ public class RenderActivity extends AppCompatActivity implements DialogInterface
     TextView cvalueview;
     @BindView(R.id.compresscedard)
     CardView compresscedard;
+    @BindView(R.id.bottomsheet)
+    BottomSheetLayout bottomsheet;
     private String value;
     @Getter
     @Setter
     private Bitmap bitmap;
     private boolean compress;
     private Unbinder unbinder;
+    private IntentPickerSheetView intentPickerSheetView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,6 +97,48 @@ public class RenderActivity extends AppCompatActivity implements DialogInterface
         valueview.setText(value);
         EncodeTask encodeTask = new EncodeTask();
         encodeTask.execute(value);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.encode_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case R.id.menu_share:
+                if (intentPickerSheetView != null)
+                    bottomsheet.showWithSheetView(intentPickerSheetView);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private IntentPickerSheetView getIntentPickerSheetView() {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        String path = MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, "QRCode", value);
+        Uri uri = Uri.parse(path);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.putExtra(Intent.EXTRA_STREAM, uri);
+        intent.setType("image/jpg");
+        IntentPickerSheetView intentPickerSheetView = new IntentPickerSheetView(this, intent, "공유하기...", new IntentPickerSheetView.OnIntentPickedListener() {
+            @Override
+            public void onIntentPicked(IntentPickerSheetView.ActivityInfo activityInfo) {
+                bottomsheet.dismissSheet();
+                startActivity(activityInfo.getConcreteIntent(intent));
+            }
+
+        });
+        intentPickerSheetView.setSortMethod(new Comparator<IntentPickerSheetView.ActivityInfo>() {
+            @Override
+            public int compare(IntentPickerSheetView.ActivityInfo lhs, IntentPickerSheetView.ActivityInfo rhs) {
+                return rhs.label.compareTo(lhs.label);
+            }
+        });
+        return intentPickerSheetView;
     }
 
     private void setuptransition() {
@@ -128,13 +173,15 @@ public class RenderActivity extends AppCompatActivity implements DialogInterface
                 break;
             case 1: {
                 //파일 공유
-                String pathofBmp = MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, "Created By TCQR", null);
+              /*  String pathofBmp = MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, "Created By TCQR", null);
                 Uri bmpUri = Uri.parse(pathofBmp);
                 final Intent shareIntent = new Intent(Intent.ACTION_SEND);
                 shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 shareIntent.putExtra(Intent.EXTRA_STREAM, bmpUri);
                 shareIntent.setType("image/png");
-                startActivity(shareIntent);
+                startActivity(shareIntent);*/
+                if (intentPickerSheetView != null)
+                    bottomsheet.showWithSheetView(intentPickerSheetView);
                 break;
             }
             case 2: {
@@ -206,6 +253,7 @@ public class RenderActivity extends AppCompatActivity implements DialogInterface
                     compressing.setVisibility(View.INVISIBLE);
                 }
                 setBitmap(bitmap);
+                intentPickerSheetView = getIntentPickerSheetView();
                 rendering.setImageBitmap(bitmap);
                 rendering.setOnLongClickListener(v -> {
                     new AlertDialog.Builder(RenderActivity.this).setTitle("기능 선택").setItems(new CharSequence[]{

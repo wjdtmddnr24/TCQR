@@ -148,7 +148,7 @@ public class EncodeQRActivity extends AppCompatActivity implements NavigationVie
         }
         int id = item.getItemId();
         switch (id) {
-            case R.id.menu_save:
+            /*case R.id.menu_save:
                 if (imageView.getDrawable() == null) {
                     editText.setError("먼저 코드를 생성해 주세요");
                     editText.requestFocus();
@@ -161,7 +161,7 @@ public class EncodeQRActivity extends AppCompatActivity implements NavigationVie
                     e.printStackTrace();
                     Toast.makeText(EncodeQRActivity.this, "파일을 저장하는데 문제가 발생하였습니다.", Toast.LENGTH_SHORT).show();
                 }
-                break;
+                break;*/
             case R.id.menu_share:
                 if (imageView.getDrawable() == null) {
                     editText.setError("먼저 코드를 생성해 주세요");
@@ -189,7 +189,10 @@ public class EncodeQRActivity extends AppCompatActivity implements NavigationVie
         int id = item.getItemId();
         switch (id) {
             case R.id.nav_recognize_decoder:
-                startActivity(new Intent(EncodeQRActivity.this, MainActivity.class));
+                startActivity(new Intent(EncodeQRActivity.this, DecodeActivity.class));
+                break;
+            case R.id.nav_text_encoder:
+//                startActivity(new Intent(En));
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -225,11 +228,6 @@ public class EncodeQRActivity extends AppCompatActivity implements NavigationVie
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.encode_main, menu);
-        return true;
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
