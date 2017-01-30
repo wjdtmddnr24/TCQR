@@ -49,7 +49,8 @@
                 android:maxLines="3"
                 android:minHeight="50dp"
                 android:text="QR코드 내용"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:transitionName="content" />
 
             <Button
                 android:id="@+id/qr_info_copy"

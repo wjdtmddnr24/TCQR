@@ -1,7 +1,10 @@
 package org.dyndns.wjdtmddnr24.tcqr;
 
 import android.Manifest;
-import android.app.ProgressDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -9,6 +12,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -29,13 +33,11 @@ import android.widget.Toast;
 
 import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.google.zxing.Result;
-import com.orhanobut.logger.Logger;
 
 import org.dyndns.wjdtmddnr24.tcqr.Fragment.ScanCodeWithCameraFragment;
 import org.dyndns.wjdtmddnr24.tcqr.Fragment.ScanCodeWithGalleryFragment;
 import org.dyndns.wjdtmddnr24.tcqr.Fragment.ScanCodeWithURLFragment;
 import org.dyndns.wjdtmddnr24.tcqr.Fragment.SimpleScannerFragment;
-import org.dyndns.wjdtmddnr24.tcqr.Util.CompressUtils;
 import org.dyndns.wjdtmddnr24.tcqr.model.QRCode;
 
 import java.io.IOException;
@@ -184,9 +186,26 @@ public class DecodeActivity extends AppCompatActivity implements ScanCodeWithCam
         qrInfoTask.execute(result);
     }
 
-    @OnClick(R.id.qr_info_bottom_sheet)
-    public void onClick() {
-        Toast.makeText(this, "hi", Toast.LENGTH_SHORT).show();
+    @OnClick({R.id.qr_info_copy, R.id.qr_info_bottom_sheet})
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.qr_info_copy: {
+                String text = qrInfoText.getText().toString();
+                ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData clip = ClipData.newPlainText("TCQR content", text);
+                clipboard.setPrimaryClip(clip);
+                Toast.makeText(this, "클립보드로 복사되었습니다.", Toast.LENGTH_SHORT).show();
+                break;
+            }
+            case R.id.qr_info_bottom_sheet: {
+                String text = qrInfoText.getText().toString();
+                Intent intent = new Intent(DecodeActivity.this, QRCodeInfoActivity.class);
+                intent.putExtra("text", text);
+                ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(DecodeActivity.this, qrInfoText, "content");
+                startActivity(intent, optionsCompat.toBundle());
+                break;
+            }
+        }
     }
 
     class MainViewPagerAdapter extends FragmentStatePagerAdapter {

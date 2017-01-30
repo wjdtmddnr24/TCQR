@@ -55,9 +55,9 @@
         <activity
             android:name=".EncodeActivity"
             android:label="@string/title_activity_encode"
+            android:launchMode="singleTop"
             android:parentActivityName=".MainActivity"
             android:screenOrientation="portrait"
-            android:launchMode="singleTop"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateAlwaysHidden|adjustResize">
             <meta-data
@@ -67,12 +67,25 @@
         <activity
             android:name=".RenderActivity"
             android:label="@string/title_activity_render"
+
+            android:launchMode="singleTop"
             android:parentActivityName=".EncodeActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.dyndns.wjdtmddnr24.tcqr.EncodeActivity" />
+        </activity>
+        <activity
+            android:name=".QRCodeInfoActivity"
+            android:label="@string/title_activity_qrcode_info"
+            android:launchMode="singleTop"
+            android:parentActivityName=".DecodeActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="org.dyndns.wjdtmddnr24.tcqr.DecodeActivity" />
         </activity>
     </application>
 
