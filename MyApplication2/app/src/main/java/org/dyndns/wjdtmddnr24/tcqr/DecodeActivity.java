@@ -1,8 +1,10 @@
 package org.dyndns.wjdtmddnr24.tcqr;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
@@ -25,6 +27,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.google.zxing.Result;
 import com.orhanobut.logger.Logger;
 
@@ -32,7 +35,10 @@ import org.dyndns.wjdtmddnr24.tcqr.Fragment.ScanCodeWithCameraFragment;
 import org.dyndns.wjdtmddnr24.tcqr.Fragment.ScanCodeWithGalleryFragment;
 import org.dyndns.wjdtmddnr24.tcqr.Fragment.ScanCodeWithURLFragment;
 import org.dyndns.wjdtmddnr24.tcqr.Fragment.SimpleScannerFragment;
+import org.dyndns.wjdtmddnr24.tcqr.Util.CompressUtils;
+import org.dyndns.wjdtmddnr24.tcqr.model.QRCode;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,6 +82,11 @@ public class DecodeActivity extends AppCompatActivity implements ScanCodeWithCam
             hideBtmSheet();
             return;
         }
+        BottomSheetLayout bottomSheetLayout = ((ScanCodeWithGalleryFragment) adapter.getItem(1)).getBottomsheet();
+        if (bottomSheetLayout != null && bottomSheetLayout.isSheetShowing()) {
+            bottomSheetLayout.dismissSheet();
+            return;
+        }
         super.onBackPressed();
 
     }
@@ -114,7 +125,14 @@ public class DecodeActivity extends AppCompatActivity implements ScanCodeWithCam
 
     }
 
-    private void showBtmSheet() {
+    private void showBtmSheet(QRCode qrCode) {
+        if (!qrCode.isCompressed()) {
+            qrInfoCompressed.setVisibility(View.GONE);
+        } else {
+            qrInfoCompressed.setVisibility(View.VISIBLE);
+        }
+        qrInfoText.setText(qrCode.getText());
+
         Animation animation = AnimationUtils.loadAnimation(this, R.anim.pop_up);
         qrInfoBottomSheet.setVisibility(View.VISIBLE);
         qrInfoBottomSheet.startAnimation(animation);
@@ -145,23 +163,25 @@ public class DecodeActivity extends AppCompatActivity implements ScanCodeWithCam
 
     @Override
     public void onFragmentInteractionGallery(Result result) {
-        Logger.d("hi");
-        if (btmstate) {
-            hideBtmSheet();
-        } else {
-            showBtmSheet();
-        }
+        QRInfoTask qrInfoTask = new QRInfoTask(1);
+        qrInfoTask.execute(result);
+    }
 
+    @Override
+    public void showQRCodeInfo(QRCode qrCode) {
+        showBtmSheet(qrCode);
     }
 
     @Override
     public void onFragmentInteractionURL(Result result) {
-
+        QRInfoTask qrInfoTask = new QRInfoTask(2);
+        qrInfoTask.execute(result);
     }
 
     @Override
     public void onFragmentInteractionSimpleCamera(Result result) {
-
+        QRInfoTask qrInfoTask = new QRInfoTask(1);
+        qrInfoTask.execute(result);
     }
 
     @OnClick(R.id.qr_info_bottom_sheet)
@@ -170,13 +190,12 @@ public class DecodeActivity extends AppCompatActivity implements ScanCodeWithCam
     }
 
     class MainViewPagerAdapter extends FragmentStatePagerAdapter {
-        List<Fragment> fragmentList;
+        public List<Fragment> fragmentList;
 
         public MainViewPagerAdapter(FragmentManager fm) {
             super(fm);
             fragmentList = new ArrayList<>();
             fragmentList.add(new SimpleScannerFragment());
-//          fragmentList.add(ScanCodeWithCameraFragment.newInstance());
             fragmentList.add(ScanCodeWithGalleryFragment.newInstance());
             fragmentList.add(ScanCodeWithURLFragment.newInstance());
         }
@@ -208,5 +227,54 @@ public class DecodeActivity extends AppCompatActivity implements ScanCodeWithCam
 
     }
 
+    class QRInfoTask extends AsyncTask<Result, Void, QRCode> {
+        private int requestfrom;
+
+        public QRInfoTask() {
+            requestfrom = 0;
+        }
+
+        public QRInfoTask(int requestfrom) {
+            this.requestfrom = requestfrom;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected QRCode doInBackground(Result... params) {
+            QRCode qrCode;
+            try {
+                qrCode = new QRCode(params[0]);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+            switch (requestfrom) {
+                case 1:
+                    ScanCodeWithGalleryFragment scanCodeWithGalleryFragment = (ScanCodeWithGalleryFragment) adapter.getItem(1);
+                    scanCodeWithGalleryFragment.setQrCode(qrCode);
+                    break;
+                case 2:
+                    ScanCodeWithURLFragment scanCodeWithURLFragment = (ScanCodeWithURLFragment) adapter.getItem(2);
+                    scanCodeWithURLFragment.setQrCode(qrCode);
+                    break;
+                default:
+            }
+            return qrCode;
+        }
+
+        @Override
+        protected void onPostExecute(QRCode qrCode) {
+            if (qrCode == null) {
+                Toast.makeText(DecodeActivity.this, "QR코드를 인식하는데 문제가 발생하였습니다.", Toast.LENGTH_SHORT).show();
+            } else {
+                showBtmSheet(qrCode);
+            }
+
+        }
+    }
 
 }

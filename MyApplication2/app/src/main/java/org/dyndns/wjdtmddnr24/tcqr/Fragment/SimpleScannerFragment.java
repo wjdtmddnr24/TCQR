@@ -45,8 +45,9 @@ public class SimpleScannerFragment extends Fragment implements ZXingScannerView.
 
     @Override
     public void handleResult(Result result) {
-        Toast.makeText(getActivity(), result.getText() +
-                result.getBarcodeFormat().toString(), Toast.LENGTH_SHORT).show();
+        mListener.onFragmentInteractionSimpleCamera(result);
+//        Toast.makeText(getActivity(), result.getText() +
+//                result.getBarcodeFormat().toString(), Toast.LENGTH_SHORT).show();
         Handler handler = new Handler();
         handler.postDelayed(() -> mScannerView.resumeCameraPreview(SimpleScannerFragment.this), 2000);
     }

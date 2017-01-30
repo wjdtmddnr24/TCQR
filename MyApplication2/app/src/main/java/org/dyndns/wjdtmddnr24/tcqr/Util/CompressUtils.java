@@ -64,4 +64,8 @@ public class CompressUtils {
     public static String removeMarker(String content) {
         return content.substring(("TCQREncoded:" + (char) 0x04).length());
     }
+
+    public static boolean isMarkerAdded(String text) {
+        return text.length() > ("TCQREncoded:" + (char) 0x04).length() && text.substring(0, ("TCQREncoded:" + (char) 0x04).length()).equals(("TCQREncoded:" + (char) 0x04));
+    }
 }

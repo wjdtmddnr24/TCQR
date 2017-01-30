@@ -53,4 +53,7 @@ dependencies {
     compile 'com.android.support:percent:25.1.0'
     compile 'com.flipboard:bottomsheet-core:1.5.3'
     compile 'com.flipboard:bottomsheet-commons:1.5.3'
+    provided "org.projectlombok:lombok:1.12.6"
+    compile 'com.flipboard:bottomsheet-core:1.5.3'
+    compile 'com.flipboard:bottomsheet-commons:1.5.3'
 }

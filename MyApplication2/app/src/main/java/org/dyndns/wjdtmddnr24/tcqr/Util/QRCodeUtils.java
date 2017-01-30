@@ -74,7 +74,7 @@ public class QRCodeUtils {
 
     public static Result DecodeToResult(Bitmap bitmap) throws FormatException, ChecksumException, NotFoundException, UnsupportedEncodingException {
         HashMap<DecodeHintType, String> hint = new HashMap<DecodeHintType, String>();
-        hint.put(DecodeHintType.CHARACTER_SET, "ISO-8859-1");
+//        hint.put(DecodeHintType.CHARACTER_SET, "ISO-8859-1");
         hint.put(DecodeHintType.TRY_HARDER, String.valueOf(Boolean.TRUE));
         hint.put(DecodeHintType.PURE_BARCODE, String.valueOf(Boolean.FALSE));
 
