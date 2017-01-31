@@ -6,7 +6,7 @@
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_encode">EncodeActivity</string>
-    <string name="credit"> 이름: 정승욱\n학년: 2학년 1반 24번\n소속: 선린 인터넷 고등학교\n\n\n Created by ChungSeungUk\n 2016/7/26</string>
+    <string name="credit"> 이름: 정승욱 - 2학년 1반 24번\n이름: 유병훈 - 2학년 12반 20번\n이름: 김주용 - 2학년 1반 9번\n\n\n소속: 선린 인터넷 고등학교</string>
     <string name="title_activity_decode">DecodeActivity</string>
     <string name="title1">QR코드 인식</string>
     <string name="title2">QR코드 생성</string>
@@ -19,4 +19,5 @@
     <string name="title_activity_render">RenderActivity</string>
     <string name="title_activity_qrcode_info">QRCodeInfoActivity</string>
     <string name="title_activity_splash">SplashActivity</string>
+    <string name="title_activity_created">CreatedActivity</string>
 </resources>

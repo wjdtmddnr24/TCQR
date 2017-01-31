@@ -1,11 +1,15 @@
 package org.dyndns.wjdtmddnr24.tcqr.model;
 
+import android.net.Uri;
+
 import com.google.zxing.Result;
 
 import org.dyndns.wjdtmddnr24.tcqr.Util.CompressUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.URI;
 
 import lombok.Data;
 
@@ -19,6 +23,7 @@ public class QRCode implements Serializable {
     private String text;
     private String compressedText;
     private boolean isCompressed = false;
+    private File image;
 
     public QRCode() {
     }

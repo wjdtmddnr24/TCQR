@@ -30,6 +30,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
+import lombok.core.Main;
 
 
 public class MainActivity extends AppCompatActivity
@@ -121,6 +122,9 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_text_encoder:
                 startActivity(new Intent(MainActivity.this, EncodeActivity.class));
                 break;
+            case R.id.nav_recent:
+                startActivity(new Intent(MainActivity.this, CreatedActivity.class));
+                break;
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -128,9 +132,12 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    @OnClick({R.id.title1, R.id.title2})
+    @OnClick({R.id.title0, R.id.title1, R.id.title2})
     public void onClick(View view) {
         switch (view.getId()) {
+            case R.id.title0:
+                startActivity(new Intent(MainActivity.this, CreatedActivity.class));
+                break;
             case R.id.title1:
                 startActivity(new Intent(MainActivity.this, DecodeActivity.class));
                 break;

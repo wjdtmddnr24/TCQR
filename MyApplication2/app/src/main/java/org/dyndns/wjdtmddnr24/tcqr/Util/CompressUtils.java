@@ -36,7 +36,7 @@ public class CompressUtils {
         return encoded;
     }
 
-    public static String decompress(String text) throws IOException {
+    public static String decompress(String text) throws IOException ,IllegalArgumentException{
         ByteArrayInputStream input = new ByteArrayInputStream(Base64.decode(text.getBytes("ISO-8859-1"), 0));
         XZInputStream xzInput = new XZInputStream(input);
         int read;
