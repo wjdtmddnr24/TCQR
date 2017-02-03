@@ -8,7 +8,7 @@ android {
         applicationId "org.dyndns.wjdtmddnr24.tcqr"
         minSdkVersion 21
         targetSdkVersion 25
-        versionCode 3
+        versionCode 4
         versionName '3.0.2'
     }
 
