@@ -99,7 +99,7 @@ public class DecodeActivity extends AppCompatActivity implements ScanCodeWithCam
         setContentView(R.layout.activity_decode);
         unbinder = ButterKnife.bind(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle("QR코드 인식");
+        toolbar.setTitle(R.string.title1);
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -233,11 +233,11 @@ public class DecodeActivity extends AppCompatActivity implements ScanCodeWithCam
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "카메라";
+                    return getResources().getString(R.string.tab_camera);
                 case 1:
-                    return "앨범 이미지";
+                    return getResources().getString(R.string.tab_album);
                 case 2:
-                    return "URL 주소";
+                    return getResources().getString(R.string.tab_url);
                 default:
                     return "탭" + position;
             }

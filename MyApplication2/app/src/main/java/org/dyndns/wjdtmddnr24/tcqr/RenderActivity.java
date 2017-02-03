@@ -1,6 +1,7 @@
 package org.dyndns.wjdtmddnr24.tcqr;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -80,7 +81,7 @@ public class RenderActivity extends AppCompatActivity implements DialogInterface
         setContentView(R.layout.activity_render);
         unbinder = ButterKnife.bind(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle("QR코드 만들기");
+        toolbar.setTitle(R.string.title2);
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -124,7 +125,7 @@ public class RenderActivity extends AppCompatActivity implements DialogInterface
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(Intent.EXTRA_STREAM, uri);
         intent.setType("image/jpg");
-        IntentPickerSheetView intentPickerSheetView = new IntentPickerSheetView(this, intent, "공유하기...", new IntentPickerSheetView.OnIntentPickedListener() {
+        IntentPickerSheetView intentPickerSheetView = new IntentPickerSheetView(this, intent, getString(R.string.share), new IntentPickerSheetView.OnIntentPickedListener() {
             @Override
             public void onIntentPicked(IntentPickerSheetView.ActivityInfo activityInfo) {
                 bottomsheet.dismissSheet();
@@ -168,20 +169,14 @@ public class RenderActivity extends AppCompatActivity implements DialogInterface
                     QRCodeUtils.saveQRCode(RenderActivity.this, bitmap, "/TCQR/Create/");
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
-                    Toast.makeText(RenderActivity.this, "파일을 저장하는데 문제가 발생하였습니다.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RenderActivity.this, R.string.err_on_saveing_file, Toast.LENGTH_SHORT).show();
                 }
                 break;
             case 1: {
                 //파일 공유
-              /*  String pathofBmp = MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, "Created By TCQR", null);
-                Uri bmpUri = Uri.parse(pathofBmp);
-                final Intent shareIntent = new Intent(Intent.ACTION_SEND);
-                shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                shareIntent.putExtra(Intent.EXTRA_STREAM, bmpUri);
-                shareIntent.setType("image/png");
-                startActivity(shareIntent);*/
-                if (intentPickerSheetView != null)
-                    bottomsheet.showWithSheetView(intentPickerSheetView);
+                if (intentPickerSheetView == null)
+                    intentPickerSheetView = getIntentPickerSheetView();
+                bottomsheet.showWithSheetView(intentPickerSheetView);
                 break;
             }
             case 2: {
@@ -191,7 +186,7 @@ public class RenderActivity extends AppCompatActivity implements DialogInterface
                 Uri bmpUri = Uri.parse(pathofBmp);
                 ClipData clip = ClipData.newRawUri("uri", bmpUri);
                 clipboard.setPrimaryClip(clip);
-                Toast.makeText(RenderActivity.this, "클립보드로 복사하였습니다.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(RenderActivity.this, R.string.copy_clipboard, Toast.LENGTH_SHORT).show();
                 break;
             }
         }
@@ -253,17 +248,21 @@ public class RenderActivity extends AppCompatActivity implements DialogInterface
                     compressing.setVisibility(View.INVISIBLE);
                 }
                 setBitmap(bitmap);
-                intentPickerSheetView = getIntentPickerSheetView();
+
+                if (ContextCompat.checkSelfPermission(RenderActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                    intentPickerSheetView = getIntentPickerSheetView();
+                }
+
                 rendering.setImageBitmap(bitmap);
                 rendering.setOnLongClickListener(v -> {
-                    new AlertDialog.Builder(RenderActivity.this).setTitle("기능 선택").setItems(new CharSequence[]{
-                            "이미지 저장", "공유", "클립보드로 복사"
+                    new AlertDialog.Builder(RenderActivity.this).setTitle(R.string.choose_to).setItems(new CharSequence[]{
+                            getString(R.string.save_image), getString(R.string.share_image), getString(R.string.copy_image)
                     }, RenderActivity.this).create().show();
                     return true;
                 });
                 rendering.setOnClickListener(v -> {
-                    new AlertDialog.Builder(RenderActivity.this).setTitle("기능 선택").setItems(new CharSequence[]{
-                            "이미지 저장", "공유", "클립보드로 복사"
+                    new AlertDialog.Builder(RenderActivity.this).setTitle(R.string.choose_to).setItems(new CharSequence[]{
+                            getString(R.string.save_image), getString(R.string.share_image), getString(R.string.copy_image)
                     }, RenderActivity.this).create().show();
                 });
             }

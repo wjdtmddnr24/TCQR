@@ -78,7 +78,7 @@
                             android:layout_alignParentLeft="true"
                             android:layout_marginBottom="15dp"
                             android:layout_marginLeft="10dp"
-                            android:text="이미지"
+                            android:text="@string/image"
                             android:theme="@style/Widget.AppCompat.Button.Colored" />
 
                         <Button
@@ -88,7 +88,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="15dp"
                             android:layout_toRightOf="@id/album_image"
-                            android:text="클립보드"
+                            android:text="@string/clipboard"
                             android:theme="@style/Widget.AppCompat.Button.Colored" />
 
                         <Button
@@ -98,7 +98,7 @@
                             android:layout_height="wrap_content"
                             android:layout_alignParentRight="true"
                             android:layout_marginBottom="15dp"
-                            android:text="초기화"
+                            android:text="@string/reset"
                             android:theme="@style/Widget.AppCompat.Button.Colored" />
                     </RelativeLayout>
                 </RelativeLayout>

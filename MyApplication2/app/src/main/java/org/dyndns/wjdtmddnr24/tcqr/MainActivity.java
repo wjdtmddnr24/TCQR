@@ -40,9 +40,6 @@ public class MainActivity extends AppCompatActivity
     CardView title1;
     @BindView(R.id.title2)
     CardView title2;
-    private ViewPager viewPager;
-    private MainViewPagerAdapter adapter;
-    private TabLayout tablayout;
     private Unbinder unbinder;
 
     @Override
@@ -62,7 +59,6 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-//        startActivity(new Intent(MainActivity.this, DecodeActivity.class));
     }
 
     @Override
@@ -147,42 +143,4 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-
-    class MainViewPagerAdapter extends FragmentStatePagerAdapter {
-        List<Fragment> fragmentList;
-
-        public MainViewPagerAdapter(FragmentManager fm) {
-            super(fm);
-            fragmentList = new ArrayList<>();
-            fragmentList.add(ScanCodeWithCameraFragment.newInstance());
-            fragmentList.add(ScanCodeWithGalleryFragment.newInstance());
-            fragmentList.add(ScanCodeWithURLFragment.newInstance());
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            return fragmentList.get(position);
-        }
-
-        @Override
-        public int getCount() {
-            return fragmentList.size();
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0:
-                    return "카메라";
-                case 1:
-                    return "앨범 이미지";
-                case 2:
-                    return "URL 주소";
-                default:
-                    return "탭" + position;
-            }
-
-        }
-
-    }
 }

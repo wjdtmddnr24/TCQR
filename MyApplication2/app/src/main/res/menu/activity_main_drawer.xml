@@ -6,14 +6,14 @@
     <item
         android:id="@+id/nav_recognize_decoder"
         android:icon="@drawable/ic_menu_camera"
-        android:title="코드 인식" />
+        android:title="@string/nav_decode" />
     <item
         android:id="@+id/nav_text_encoder"
         android:icon="@drawable/ic_menu_gallery"
-        android:title="코드 생성" />
+        android:title="@string/nav_encode" />
     <item
         android:id="@+id/nav_recent"
         android:icon="@drawable/ic_history_black_24dp"
-        android:title="최근 기록" />
+        android:title="@string/nav_recent" />
 
 </menu>

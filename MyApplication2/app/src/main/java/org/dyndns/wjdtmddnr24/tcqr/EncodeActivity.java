@@ -1,10 +1,16 @@
 package org.dyndns.wjdtmddnr24.tcqr;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -22,6 +28,7 @@ import butterknife.Unbinder;
 
 public class EncodeActivity extends AppCompatActivity {
 
+    private static final int REQUEST_WRITE_PERMISSION = 100;
     @BindView(R.id.compressmode)
     Switch compressmode;
     @BindView(R.id.edittext)
@@ -36,24 +43,14 @@ public class EncodeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_encode);
         unbinder = ButterKnife.bind(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle("QR코드 만들기");
+        toolbar.setTitle(R.string.title2);
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String value = edittext.getText().toString();
-                if (TextUtils.isEmpty(value)) {
-                    edittext.setError("내용을 입력해주세요.");
-                    edittext.requestFocus();
-                    return;
-                }
-                Intent intent = new Intent(EncodeActivity.this, RenderActivity.class);
-                intent.putExtra("value", value);
-                intent.putExtra("compress", compressmode.isChecked());
-                ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(EncodeActivity.this, edittext, "content");
-                startActivity(intent, optionsCompat.toBundle());
+                render();
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -69,11 +66,11 @@ public class EncodeActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                textinput.setHint("내용: " + String.valueOf(s.length()));
+                textinput.setHint(getString(R.string.encode_count) + String.valueOf(s.length()));
                 if (s.length() > 2000) {
                     if (!compressmode.isChecked()) {
                         compressmode.setChecked(true);
-                        Toast.makeText(EncodeActivity.this, "2000자 이상으로는 압축후 QR코드 생성만 가능합니다.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(EncodeActivity.this, R.string.encode_compress_required, Toast.LENGTH_SHORT).show();
                     }
                     compressmode.setEnabled(false);
                 } else {
@@ -83,6 +80,20 @@ public class EncodeActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void render() {
+        String value = edittext.getText().toString();
+        if (TextUtils.isEmpty(value)) {
+            edittext.setError(getString(R.string.encode_no_input));
+            edittext.requestFocus();
+            return;
+        }
+        Intent intent = new Intent(EncodeActivity.this, RenderActivity.class);
+        intent.putExtra("value", value);
+        intent.putExtra("compress", compressmode.isChecked());
+        ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(EncodeActivity.this, edittext, "content");
+        startActivity(intent, optionsCompat.toBundle());
     }
 
     @OnClick({R.id.compressmode, R.id.edittext})

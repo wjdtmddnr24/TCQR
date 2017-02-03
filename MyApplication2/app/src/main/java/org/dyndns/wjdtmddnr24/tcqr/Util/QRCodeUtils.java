@@ -23,6 +23,8 @@ import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
 import com.google.zxing.qrcode.QRCodeWriter;
 
+import org.dyndns.wjdtmddnr24.tcqr.R;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -90,9 +92,9 @@ public class QRCodeUtils {
 
     public static void saveQRCode(Context context, Bitmap bitmap, String path) throws FileNotFoundException {
         String ex_storage = Environment.getExternalStorageDirectory().getAbsolutePath();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddhhmm");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_hhmmss");
         Date date = new Date();
-        String file_name = dateFormat.format(date) + ".jpg";
+        String file_name = dateFormat.format(date) + ".png";
         String fullpath = ex_storage + path + file_name;
         File file = new File(ex_storage + path, file_name);
         File dir = new File(ex_storage + path);
@@ -100,8 +102,9 @@ public class QRCodeUtils {
             dir.mkdirs();
         }
         FileOutputStream fileOutputStream = new FileOutputStream(file);
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
-        Toast.makeText(context, fullpath + " 로 파일을 저장하였습니다.", Toast.LENGTH_SHORT).show();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream);
+        Toast.makeText(context, fullpath + context.getString(R.string.saved_into), Toast.LENGTH_SHORT).show();
         MediaScannerConnection.scanFile(context, new String[]{fullpath}, null, null);
     }
 }
+

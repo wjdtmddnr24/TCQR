@@ -19,32 +19,35 @@
             android:layout_margin="8dp"
             android:background="@android:color/darker_gray" />
 
+
         <TextView
-            android:id="@+id/qr_recent_content"
+            android:id="@+id/qr_recent_filename"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/qr_recent_date"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
+            android:layout_marginBottom="4dp"
             android:layout_marginRight="8dp"
             android:layout_marginTop="15dp"
             android:layout_toRightOf="@id/qr_recent_imageview"
             android:ellipsize="end"
-            android:maxLines="3"
-            android:text="내용"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-            android:transitionName="content" />
+            android:maxLines="1"
+            android:text="20160220_102293.png"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
 
         <TextView
-            android:id="@+id/qr_recent_date"
-            android:layout_width="wrap_content"
+            android:id="@+id/qr_recent_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
+            android:layout_alignBottom="@+id/qr_recent_imageview"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/qr_recent_filename"
             android:layout_marginRight="8dp"
-            android:layout_marginTop="8dp"
             android:layout_toRightOf="@id/qr_recent_imageview"
-            android:paddingBottom="15dp"
-            android:text="2016년 1월 31일 생성" />
+            android:ellipsize="end"
+            android:maxLines="3"
+            android:text="내용"
+            android:transitionName="content" />
 
 
     </RelativeLayout>

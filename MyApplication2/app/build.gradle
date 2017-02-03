@@ -8,8 +8,8 @@ android {
         applicationId "org.dyndns.wjdtmddnr24.tcqr"
         minSdkVersion 21
         targetSdkVersion 25
-        versionCode 1
-        versionName "1.0"
+        versionCode 3
+        versionName '3.0.2'
     }
 
     compileOptions {
@@ -53,7 +53,7 @@ dependencies {
     compile 'com.android.support:percent:25.1.0'
     compile 'com.flipboard:bottomsheet-core:1.5.3'
     compile 'com.flipboard:bottomsheet-commons:1.5.3'
-    provided "org.projectlombok:lombok:1.12.6"
+    provided 'org.projectlombok:lombok:1.12.6'
     compile 'com.flipboard:bottomsheet-core:1.5.3'
     compile 'com.flipboard:bottomsheet-commons:1.5.3'
 }

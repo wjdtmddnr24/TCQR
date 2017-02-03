@@ -51,7 +51,7 @@
                                 android:layout_alignParentLeft="true"
                                 android:layout_alignParentTop="true"
                                 android:layout_margin="8dp"
-                                android:text="QR코드"
+                                android:text="@string/qrcode"
                                 android:textColor="@color/colorPrimary"
                                 android:textStyle="bold" />
 
@@ -91,7 +91,7 @@
                             android:layout_alignParentLeft="true"
                             android:layout_alignParentTop="true"
                             android:layout_margin="8dp"
-                            android:text="내용"
+                            android:text="@string/content"
                             android:textColor="@color/colorPrimary"
                             android:textStyle="bold" />
 
@@ -128,7 +128,7 @@
                             android:layout_alignParentLeft="true"
                             android:layout_alignParentTop="true"
                             android:layout_margin="8dp"
-                            android:text="압축된 내용"
+                            android:text="@string/compressed_content"
                             android:textColor="@color/colorPrimary"
                             android:textStyle="bold" />
 

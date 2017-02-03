@@ -24,6 +24,7 @@ public class QRCode implements Serializable {
     private String compressedText;
     private boolean isCompressed = false;
     private File image;
+    public String filename = "";
 
     public QRCode() {
     }

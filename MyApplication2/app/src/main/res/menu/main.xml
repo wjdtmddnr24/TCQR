@@ -4,6 +4,6 @@
     <item
         android:id="@+id/action_credit"
         android:orderInCategory="100"
-        android:title="개발자 보기"
+        android:title="@string/developercredit"
         app:showAsAction="never" />
 </menu>

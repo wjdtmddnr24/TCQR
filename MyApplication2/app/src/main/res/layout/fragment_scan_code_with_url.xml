@@ -74,7 +74,7 @@
                         android:layout_marginLeft="10dp"
                         android:layout_marginRight="10dp"
                         android:layout_toLeftOf="@+id/url_go"
-                        android:hint="URL를 입력하십시오."
+                        android:hint="@string/insert_url"
                         android:maxLines="1"
                         android:singleLine="true" />
 
@@ -86,7 +86,7 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentRight="true"
                         android:layout_marginBottom="15dp"
-                        android:text="이동"
+                        android:text="@string/go"
                         android:theme="@style/Widget.AppCompat.Button.Colored" />
 
                 </RelativeLayout>

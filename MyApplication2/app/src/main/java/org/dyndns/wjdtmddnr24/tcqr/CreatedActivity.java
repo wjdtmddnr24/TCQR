@@ -53,7 +53,7 @@ public class CreatedActivity extends AppCompatActivity {
         setContentView(R.layout.activity_created);
         unbinder = ButterKnife.bind(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle("최근 기록");
+        toolbar.setTitle(R.string.title3);
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -86,8 +86,8 @@ public class CreatedActivity extends AppCompatActivity {
             ImageView qrRecentImageview;
             @BindView(R.id.qr_recent_content)
             TextView qrRecentContent;
-            @BindView(R.id.qr_recent_date)
-            TextView qrRecentDate;
+            @BindView(R.id.qr_recent_filename)
+            TextView qrRecentFilename;
             @BindView(R.id.qr_recent_cardview)
             CardView qrRecentCardview;
 
@@ -109,7 +109,7 @@ public class CreatedActivity extends AppCompatActivity {
             Glide.with(CreatedActivity.this).load(qrCodes.get(position).getImage()).into(holder.qrRecentImageview);
             holder.qrRecentContent.setText(qrCodes.get(position).getText());
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy년 MM월 DD일 생성");
-            holder.qrRecentDate.setText(simpleDateFormat.format(new Date(qrCodes.get(position).getImage().lastModified())));
+            holder.qrRecentFilename.setText(qrCodes.get(position).getFilename());
             holder.qrRecentCardview.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -148,6 +148,7 @@ public class CreatedActivity extends AppCompatActivity {
                     try {
                         QRCode qrCode = new QRCode(QRCodeUtils.DecodeToResult(bitmap));
                         qrCode.setImage(f);
+                        qrCode.setFilename(f.getName());
                         qrCodes.add(qrCode);
                     } catch (IOException | FormatException | NotFoundException | ChecksumException | IllegalArgumentException e) {
                         e.printStackTrace();
