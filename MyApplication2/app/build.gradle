@@ -8,8 +8,8 @@ android {
         applicationId "org.dyndns.wjdtmddnr24.tcqr"
         minSdkVersion 21
         targetSdkVersion 25
-        versionCode 4
-        versionName '3.0.2'
+        versionCode 5
+        versionName '3.0.3'
     }
 
     compileOptions {
@@ -57,3 +57,5 @@ dependencies {
     compile 'com.flipboard:bottomsheet-core:1.5.3'
     compile 'com.flipboard:bottomsheet-commons:1.5.3'
 }
+
+apply plugin: 'com.google.gms.google-services'

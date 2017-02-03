@@ -19,6 +19,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
+
 import org.dyndns.wjdtmddnr24.tcqr.Fragment.ScanCodeWithCameraFragment;
 import org.dyndns.wjdtmddnr24.tcqr.Fragment.ScanCodeWithGalleryFragment;
 import org.dyndns.wjdtmddnr24.tcqr.Fragment.ScanCodeWithURLFragment;
@@ -41,6 +43,8 @@ public class MainActivity extends AppCompatActivity
     @BindView(R.id.title2)
     CardView title2;
     private Unbinder unbinder;
+    private FirebaseAnalytics mFirebaseAnalytics;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +53,7 @@ public class MainActivity extends AppCompatActivity
         unbinder = ButterKnife.bind(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -111,18 +116,22 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+        Bundle bundle = new Bundle();
         switch (id) {
             case R.id.nav_recognize_decoder:
+                bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Read");
                 startActivity(new Intent(MainActivity.this, DecodeActivity.class));
                 break;
             case R.id.nav_text_encoder:
+                bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Create");
                 startActivity(new Intent(MainActivity.this, EncodeActivity.class));
                 break;
             case R.id.nav_recent:
+                bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Recent");
                 startActivity(new Intent(MainActivity.this, CreatedActivity.class));
                 break;
         }
-
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -130,17 +139,22 @@ public class MainActivity extends AppCompatActivity
 
     @OnClick({R.id.title0, R.id.title1, R.id.title2})
     public void onClick(View view) {
+        Bundle bundle = new Bundle();
         switch (view.getId()) {
             case R.id.title0:
+                bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Recent");
                 startActivity(new Intent(MainActivity.this, CreatedActivity.class));
                 break;
             case R.id.title1:
+                bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Read");
                 startActivity(new Intent(MainActivity.this, DecodeActivity.class));
                 break;
             case R.id.title2:
+                bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Create");
                 startActivity(new Intent(MainActivity.this, EncodeActivity.class));
                 break;
         }
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
     }
 
 }

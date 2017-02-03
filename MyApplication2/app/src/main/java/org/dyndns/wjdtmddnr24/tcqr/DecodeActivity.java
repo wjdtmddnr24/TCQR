@@ -32,6 +32,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.flipboard.bottomsheet.BottomSheetLayout;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.zxing.Result;
 
 import org.dyndns.wjdtmddnr24.tcqr.Fragment.ScanCodeWithCameraFragment;
@@ -67,6 +68,7 @@ public class DecodeActivity extends AppCompatActivity implements ScanCodeWithCam
     private TabLayout tablayout;
     private boolean btmstate = false;
     private Unbinder unbinder;
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -103,6 +105,7 @@ public class DecodeActivity extends AppCompatActivity implements ScanCodeWithCam
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         tablayout = (TabLayout) findViewById(R.id.tablayout);
         viewPager = (ViewPager) findViewById(R.id.viewpager);
@@ -134,7 +137,6 @@ public class DecodeActivity extends AppCompatActivity implements ScanCodeWithCam
             qrInfoCompressed.setVisibility(View.VISIBLE);
         }
         qrInfoText.setText(qrCode.getText());
-
         Animation animation = AnimationUtils.loadAnimation(this, R.anim.pop_up);
         qrInfoBottomSheet.setVisibility(View.VISIBLE);
         qrInfoBottomSheet.startAnimation(animation);
@@ -165,6 +167,10 @@ public class DecodeActivity extends AppCompatActivity implements ScanCodeWithCam
 
     @Override
     public void onFragmentInteractionGallery(Result result) {
+        Bundle bundle = new Bundle();
+        bundle.putString("decode_from", "Gallery");
+        bundle.putString("decode_size", String.valueOf(result.getText().length()));
+        mFirebaseAnalytics.logEvent("Decode",bundle);
         QRInfoTask qrInfoTask = new QRInfoTask(1);
         qrInfoTask.execute(result);
     }
@@ -176,12 +182,20 @@ public class DecodeActivity extends AppCompatActivity implements ScanCodeWithCam
 
     @Override
     public void onFragmentInteractionURL(Result result) {
+        Bundle bundle = new Bundle();
+        bundle.putString("decode_from", "URL");
+        bundle.putString("decode_size", String.valueOf(result.getText().length()));
+        mFirebaseAnalytics.logEvent("Decode",bundle);
         QRInfoTask qrInfoTask = new QRInfoTask(2);
         qrInfoTask.execute(result);
     }
 
     @Override
     public void onFragmentInteractionSimpleCamera(Result result) {
+        Bundle bundle = new Bundle();
+        bundle.putString("decode_from", "Camera");
+        bundle.putString("decode_size", String.valueOf(result.getText().length()));
+        mFirebaseAnalytics.logEvent("Decode",bundle);
         QRInfoTask qrInfoTask = new QRInfoTask(1);
         qrInfoTask.execute(result);
     }

@@ -21,6 +21,8 @@ import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -36,6 +38,7 @@ public class EncodeActivity extends AppCompatActivity {
     @BindView(R.id.textinput)
     TextInputLayout textinput;
     private Unbinder unbinder;
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +48,7 @@ public class EncodeActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.title2);
         setSupportActionBar(toolbar);
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -89,6 +93,12 @@ public class EncodeActivity extends AppCompatActivity {
             edittext.requestFocus();
             return;
         }
+
+        Bundle bundle = new Bundle();
+        bundle.putString("encode_compressed", String.valueOf(compressmode.isChecked()));
+        bundle.putString("encode_size", String.valueOf(value.length()));
+        mFirebaseAnalytics.logEvent("Encode", bundle);
+
         Intent intent = new Intent(EncodeActivity.this, RenderActivity.class);
         intent.putExtra("value", value);
         intent.putExtra("compress", compressmode.isChecked());
