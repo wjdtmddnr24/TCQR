@@ -1,13 +1,13 @@
 <resources>
     <string name="app_name">TCQR</string>
 
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
+    <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
 
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="title_activity_encode">EncodeActivity</string>
-    <string name="credit"> 이름: 정승욱 - 2학년 1반 24번\n이름: 유병훈 - 2학년 12반 20번\n이름: 김주용 - 2학년 1반 9번\n\n\n소속: 선린 인터넷 고등학교</string>
-    <string name="title_activity_decode">DecodeActivity</string>
+    <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
+    <string name="title_activity_encode" translatable="false">EncodeActivity</string>
+    <string name="credit" translatable="false"> 이름: 정승욱 - 2학년 1반 24번\n이름: 유병훈 - 2학년 12반 20번\n이름: 김주용 - 2학년 1반 9번\n\n\n소속: 선린 인터넷 고등학교</string>
+    <string name="title_activity_decode" translatable="false">DecodeActivity</string>
     <string name="title1">Read QR Code</string>
     <string name="title2">Create QR Code</string>
     <string name="info1">You can decode QR Code here</string>
@@ -16,10 +16,10 @@
     <string name="url_info1">Enter the URL below and press the Button to automatically download and read the image.</string>
     <string name="album_info">You can read QR code from <![CDATA[<b><font color=#03A9F4>Camera</b>]]> album or <![CDATA[<b><font color=#03A9F4>Clipboard</b>]]>. <![CDATA[<br>]]>Press the button below to select the method.</string>
     <string name="url_info">"Enter the <![CDATA[<b><font color=#03A9F4>URL</b>]]> below and press the <![CDATA[<b><font color=#03A9F4>Button</b>]]> to <![CDATA[<b><font color=#03A9F4>Automatically Download</b>]]> and read the image. "</string>
-    <string name="title_activity_render">RenderActivity</string>
-    <string name="title_activity_qrcode_info">QRCodeInfoActivity</string>
-    <string name="title_activity_splash">SplashActivity</string>
-    <string name="title_activity_created">CreatedActivity</string>
+    <string name="title_activity_render" translatable="false">RenderActivity</string>
+    <string name="title_activity_qrcode_info" translatable="false">QRCodeInfoActivity</string>
+    <string name="title_activity_splash" translatable="false">SplashActivity</string>
+    <string name="title_activity_created" translatable="false">CreatedActivity</string>
     <string name="nav_decode">Read QR Code</string>
     <string name="nav_encode">Create QR Code</string>
     <string name="nav_recent">Recent</string>
@@ -27,14 +27,13 @@
     <string name="tab_album">album</string>
     <string name="tab_camera">camera</string>
     <string name="tab_url">url</string>
-    <string name="toolbar_decode">Read QR Code</string>
     <string name="encode_compress">Compress Text</string>
     <string name="encode_content">content</string>
     <string name="encode_no_input">content empty</string>
     <string name="encode_count">"content: "</string>
-    <string name="encode_compress_required">more than 2000 characters can only generate QR Code after compression.</string>
+    <string name="encode_compress_required">More than 2000 characters can only generate QR Code after compression.</string>
     <string name="share">share</string>
-    <string name="err_on_saveing_file">error occured during saving image</string>
+    <string name="err_on_saveing_file">Error occured while saving image.</string>
     <string name="copy_clipboard">Copied to clipboard</string>
     <string name="copy_image">Copy image to clipboard</string>
     <string name="save_image">Save image</string>
@@ -51,4 +50,14 @@
     <string name="go">Go</string>
     <string name="insert_url">Insert URL here.</string>
     <string name="nav_credit">Sunrin Internet Highschool 정승욱 유병훈 김주용</string>
+    <string name="error_decode">Error occured while scanning image. Make sure the image contains QR Code.</string>
+    <string name="error_load">Error occured while getting image from clipboard. Make sure you copied image into clipboard.</string>
+    <string name="decode_error_load_image">Error occured while loading image. Make sure you typed the right URL address.</string>
+    <string name="decode_select_image">select image...</string>
+    <string name="copy_into_clipboard">Copy image to clipboard</string>
+    <string name="copy">Copy</string>
+    <string name="info_developer">Developer Information</string>
+    <string name="insert_url_here">URL empty</string>
+    <string name="qr_info_is_compressed">TCQR Compressed</string>
+    <string name="qr_info_view_text">View Content</string>
 </resources>

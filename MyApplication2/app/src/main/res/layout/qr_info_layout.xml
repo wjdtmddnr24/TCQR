@@ -28,7 +28,7 @@
                 android:layout_marginBottom="8dp"
                 android:layout_marginLeft="15dp"
                 android:layout_marginTop="8dp"
-                android:text="TCQR로 압축됨"
+                android:text="@string/qr_info_is_compressed"
                 android:textAppearance="@style/TextAppearance.AppCompat.Widget.Button.Colored" />
         </LinearLayout>
 
@@ -59,7 +59,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_below="@id/qr_info_text"
-                android:text="복사" />
+                android:text="@string/copy" />
         </RelativeLayout>
     </LinearLayout>
 </android.support.v7.widget.CardView>

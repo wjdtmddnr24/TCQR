@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_credit) {
-            new AlertDialog.Builder(this).setTitle("개발자 정보").setMessage(R.string.credit).show();
+            new AlertDialog.Builder(this).setTitle(R.string.info_developer).setMessage(R.string.credit).show();
             return true;
         }
 

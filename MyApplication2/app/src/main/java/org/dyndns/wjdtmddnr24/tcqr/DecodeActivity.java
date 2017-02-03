@@ -194,7 +194,7 @@ public class DecodeActivity extends AppCompatActivity implements ScanCodeWithCam
                 ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
                 ClipData clip = ClipData.newPlainText("TCQR content", text);
                 clipboard.setPrimaryClip(clip);
-                Toast.makeText(this, "클립보드로 복사되었습니다.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.copy_clipboard, Toast.LENGTH_SHORT).show();
                 break;
             }
             case R.id.qr_info_bottom_sheet: {

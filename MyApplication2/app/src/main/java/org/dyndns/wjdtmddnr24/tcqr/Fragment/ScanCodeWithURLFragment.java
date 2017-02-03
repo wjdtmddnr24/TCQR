@@ -116,7 +116,7 @@ public class ScanCodeWithURLFragment extends Fragment {
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
                 if (TextUtils.isEmpty(urlAddress.getText())) {
-                    urlAddress.setError("URL주소를 입력해주시기 바랍니다.");
+                    urlAddress.setError(getString(R.string.insert_url_here));
                     return;
                 }
                 String url = urlAddress.getText().toString();
@@ -132,7 +132,7 @@ public class ScanCodeWithURLFragment extends Fragment {
                             mListener.onFragmentInteractionURL(result);
                         } catch (FormatException | ChecksumException | UnsupportedEncodingException | NotFoundException e) {
                             e.printStackTrace();
-                            Toast.makeText(getContext(), "QR코드를 스캔하는데 문제가 발생하였습니다. QR코드가 포함된 이미지인지 확인해주세요.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), R.string.error_decode, Toast.LENGTH_SHORT).show();
                             qrCode = null;
                         }
                     }
@@ -140,7 +140,7 @@ public class ScanCodeWithURLFragment extends Fragment {
                     @Override
                     public void onLoadFailed(Exception e, Drawable errorDrawable) {
                         super.onLoadFailed(e, errorDrawable);
-                        Toast.makeText(getContext(), "이미지를 불러오는데 문제가 발생하였습니다. 정확한 주소를 입력하였는지 확인해주세요.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), R.string.decode_error_load_image, Toast.LENGTH_SHORT).show();
                         qrCode = null;
                     }
                 });

@@ -33,7 +33,7 @@ public class QRCodeInfoActivity extends AppCompatActivity implements DialogInter
         setContentView(R.layout.activity_qrcode_info);
         unbinder = ButterKnife.bind(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle("텍스트 보기");
+        toolbar.setTitle(R.string.qr_info_view_text);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -44,7 +44,7 @@ public class QRCodeInfoActivity extends AppCompatActivity implements DialogInter
             @Override
             public boolean onLongClick(View v) {
                 new AlertDialog.Builder(QRCodeInfoActivity.this).setTitle("기능 선택").setItems(new CharSequence[]{
-                        "클립보드로 복사"
+                       getString(R.string.copy_into_clipboard)
                 }, QRCodeInfoActivity.this).create().show();
                 return true;
             }
@@ -73,6 +73,6 @@ public class QRCodeInfoActivity extends AppCompatActivity implements DialogInter
         ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText("TCQR content", text);
         clipboard.setPrimaryClip(clip);
-        Toast.makeText(this, "클립보드로 복사되었습니다.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, R.string.clipboard, Toast.LENGTH_SHORT).show();
     }
 }

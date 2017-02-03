@@ -93,7 +93,7 @@ public class ScanCodeWithGalleryFragment extends Fragment {
                             mListener.onFragmentInteractionGallery(result);
                         } catch (FormatException | ChecksumException | UnsupportedEncodingException | NotFoundException e) {
                             e.printStackTrace();
-                            Toast.makeText(getContext(), "QR코드를 스캔하는데 문제가 발생하였습니다. QR코드가 포함된 이미지인지 확인해주세요.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), R.string.error_decode, Toast.LENGTH_SHORT).show();
                             qrCode = null;
                         }
                     }
@@ -131,7 +131,7 @@ public class ScanCodeWithGalleryFragment extends Fragment {
             } else if (selectedTile.isImageTile()) {
                 showSelectedImage(selectedTile.getImageUri());
             }
-        }).setTitle("이미지를 선택하세요...").create();
+        }).setTitle(R.string.decode_select_image).create();
     }
 
     @Override
@@ -179,7 +179,7 @@ public class ScanCodeWithGalleryFragment extends Fragment {
                     mListener.onFragmentInteractionGallery(result);
                 } catch (FormatException | ChecksumException | UnsupportedEncodingException | NotFoundException e) {
                     e.printStackTrace();
-                    Toast.makeText(getContext(), "QR코드를 스캔하는데 문제가 발생하였습니다. QR코드가 포함된 이미지인지 확인해주세요.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), R.string.error_decode, Toast.LENGTH_SHORT).show();
                     qrCode = null;
                 }
             }
@@ -213,7 +213,7 @@ public class ScanCodeWithGalleryFragment extends Fragment {
                                 mListener.onFragmentInteractionGallery(result);
                             } catch (FormatException | ChecksumException | UnsupportedEncodingException | NotFoundException e) {
                                 e.printStackTrace();
-                                Toast.makeText(getContext(), "QR코드를 스캔하는데 문제가 발생하였습니다. QR코드가 포함된 이미지인지 확인해주세요.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getContext(), R.string.error_decode, Toast.LENGTH_SHORT).show();
                                 qrCode = null;
                             }
                         }
@@ -222,14 +222,14 @@ public class ScanCodeWithGalleryFragment extends Fragment {
                         public void onLoadFailed(Exception e, Drawable errorDrawable) {
                             super.onLoadFailed(e, errorDrawable);
                             albumImageview.setImageDrawable(null);
-                            Toast.makeText(getContext(), "클립보드에서 사진을 가져오는데 문제가 발생하였습니다.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), R.string.error_load, Toast.LENGTH_SHORT).show();
                             qrCode = null;
                         }
                     });
                 } catch (IOException e) {
                     e.printStackTrace();
                     albumImageview.setImageDrawable(null);
-                    Toast.makeText(getContext(), "클립보드에서 사진을 가져오는데 문제가 발생하였습니다.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), R.string.error_load, Toast.LENGTH_SHORT).show();
                     qrCode = null;
                 }
                 break;

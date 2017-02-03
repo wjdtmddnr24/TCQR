@@ -103,7 +103,7 @@ public class QRCodeUtils {
         }
         FileOutputStream fileOutputStream = new FileOutputStream(file);
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream);
-        Toast.makeText(context, fullpath + context.getString(R.string.saved_into), Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, context.getString(R.string.saved_into) + fullpath, Toast.LENGTH_SHORT).show();
         MediaScannerConnection.scanFile(context, new String[]{fullpath}, null, null);
     }
 }
