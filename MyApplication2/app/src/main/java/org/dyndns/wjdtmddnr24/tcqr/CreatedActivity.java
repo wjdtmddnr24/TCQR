@@ -1,12 +1,17 @@
 package org.dyndns.wjdtmddnr24.tcqr;
 
+import android.*;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -18,6 +23,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.zxing.ChecksumException;
@@ -39,6 +45,7 @@ import butterknife.Unbinder;
 
 public class CreatedActivity extends AppCompatActivity {
 
+    private static final int REQUEST_WRITE_PERMISSION = 101;
     @BindView(R.id.qr_recent_recyclerview)
     RecyclerView qrRecentRecyclerview;
     @BindView(R.id.qr_recent_progress)
@@ -46,6 +53,19 @@ public class CreatedActivity extends AppCompatActivity {
     private Unbinder unbinder;
     private ArrayList<QRCode> qrCodes;
     private RecentAdapter adapter;
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_WRITE_PERMISSION) {
+            if (grantResults.length == 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(CreatedActivity.this, R.string.request_write_permission, Toast.LENGTH_SHORT).show();
+                ActivityCompat.requestPermissions(CreatedActivity.this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_PERMISSION);
+            } else {
+                loadRecentQRCodes();
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,13 +78,22 @@ public class CreatedActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        if (ContextCompat.checkSelfPermission(CreatedActivity.this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(CreatedActivity.this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_PERMISSION);
+            return;
+        }
+
+        loadRecentQRCodes();
+
+    }
+
+    private void loadRecentQRCodes() {
         qrRecentRecyclerview.setLayoutManager(new LinearLayoutManager(this));
         qrCodes = new ArrayList<>();
         adapter = new RecentAdapter(qrCodes);
         qrRecentRecyclerview.setAdapter(adapter);
         RecentTask recentTask = new RecentTask();
         recentTask.execute();
-
     }
 
     @Override
@@ -164,10 +193,10 @@ public class CreatedActivity extends AppCompatActivity {
             if (qrCodes.size() != 0) {
                 adapter.notifyDataSetChanged();
             }
-            if (qrRecentProgress.getVisibility() != View.INVISIBLE) {
+            if (qrRecentProgress != null && qrRecentProgress.getVisibility() != View.INVISIBLE) {
                 qrRecentProgress.setVisibility(View.INVISIBLE);
             }
-            if (qrRecentRecyclerview.getVisibility() != View.VISIBLE) {
+            if (qrRecentRecyclerview != null && qrRecentRecyclerview.getVisibility() != View.VISIBLE) {
                 qrRecentRecyclerview.setVisibility(View.VISIBLE);
             }
         }

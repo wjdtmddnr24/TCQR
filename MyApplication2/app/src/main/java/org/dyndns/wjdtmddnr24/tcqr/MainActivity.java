@@ -20,6 +20,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.crash.FirebaseCrash;
 
 import org.dyndns.wjdtmddnr24.tcqr.Fragment.ScanCodeWithCameraFragment;
 import org.dyndns.wjdtmddnr24.tcqr.Fragment.ScanCodeWithGalleryFragment;

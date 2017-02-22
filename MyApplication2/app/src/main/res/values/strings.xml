@@ -60,4 +60,5 @@
     <string name="insert_url_here">URL empty</string>
     <string name="qr_info_is_compressed">TCQR Compressed</string>
     <string name="qr_info_view_text">View Content</string>
+    <string name="request_write_permission">Please grant write permission to use this function</string>
 </resources>
