@@ -8,8 +8,8 @@ android {
         applicationId "org.dyndns.wjdtmddnr24.tcqr"
         minSdkVersion 21
         targetSdkVersion 25
-        versionCode 6
-        versionName '3.0.4'
+        versionCode 7
+        versionName '3.0.5'
     }
 
     compileOptions {

@@ -169,6 +169,7 @@ public class CreatedActivity extends AppCompatActivity {
         protected Void doInBackground(Void... params) {
             String path = Environment.getExternalStorageDirectory().toString() + "/TCQR/Create";
             File file = new File(path);
+            if(file != null && file.listFiles() != null && file.listFiles().length > 0)
             for (File f : file.listFiles()) {
                 BitmapFactory.Options options = new BitmapFactory.Options();
                 options.inJustDecodeBounds = true;
