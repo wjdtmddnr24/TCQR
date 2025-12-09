@@ -10,7 +10,7 @@
     tools:context="org.dyndns.wjdtmddnr24.tcqr.MainActivity"
     tools:showIn="@layout/app_bar_main">
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:id="@+id/title0"
         android:layout_width="match_parent"
         android:layout_height="52dp"
@@ -56,9 +56,9 @@
 
 
         </RelativeLayout>
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:id="@+id/title1"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -106,9 +106,9 @@
 
         </RelativeLayout>
 
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:id="@+id/title2"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -156,7 +156,7 @@
 
         </RelativeLayout>
 
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 
 
 </LinearLayout>

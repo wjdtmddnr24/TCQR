@@ -1,6 +1,6 @@
 package org.dyndns.wjdtmddnr24.tcqr;
 
-import android.*;
+import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -8,15 +8,6 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,32 +16,35 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.bumptech.glide.Glide;
 import com.google.zxing.ChecksumException;
 import com.google.zxing.FormatException;
 import com.google.zxing.NotFoundException;
 
 import org.dyndns.wjdtmddnr24.tcqr.Util.QRCodeUtils;
+import org.dyndns.wjdtmddnr24.tcqr.databinding.ActivityCreatedBinding;
+import org.dyndns.wjdtmddnr24.tcqr.databinding.ItemRecentQrBinding;
 import org.dyndns.wjdtmddnr24.tcqr.model.QRCode;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.Unbinder;
 
 public class CreatedActivity extends AppCompatActivity {
 
     private static final int REQUEST_WRITE_PERMISSION = 101;
-    @BindView(R.id.qr_recent_recyclerview)
-    RecyclerView qrRecentRecyclerview;
-    @BindView(R.id.qr_recent_progress)
-    ProgressBar qrRecentProgress;
-    private Unbinder unbinder;
+    private ActivityCreatedBinding binding;
     private ArrayList<QRCode> qrCodes;
     private RecentAdapter adapter;
 
@@ -58,11 +52,10 @@ public class CreatedActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_WRITE_PERMISSION) {
-            if (grantResults.length == 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(CreatedActivity.this, R.string.request_write_permission, Toast.LENGTH_SHORT).show();
-                ActivityCompat.requestPermissions(CreatedActivity.this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_PERMISSION);
-            } else {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 loadRecentQRCodes();
+            } else {
+                Toast.makeText(CreatedActivity.this, R.string.request_write_permission, Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -70,28 +63,27 @@ public class CreatedActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_created);
-        unbinder = ButterKnife.bind(this);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        binding = ActivityCreatedBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        Toolbar toolbar = binding.toolbar;
         toolbar.setTitle(R.string.title3);
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        if (ContextCompat.checkSelfPermission(CreatedActivity.this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(CreatedActivity.this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_PERMISSION);
-            return;
+        if (ContextCompat.checkSelfPermission(CreatedActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(CreatedActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_PERMISSION);
+        } else {
+            loadRecentQRCodes();
         }
-
-        loadRecentQRCodes();
 
     }
 
     private void loadRecentQRCodes() {
-        qrRecentRecyclerview.setLayoutManager(new LinearLayoutManager(this));
+        binding.contentCreated.qrRecentRecyclerview.setLayoutManager(new LinearLayoutManager(this));
         qrCodes = new ArrayList<>();
         adapter = new RecentAdapter(qrCodes);
-        qrRecentRecyclerview.setAdapter(adapter);
+        binding.contentCreated.qrRecentRecyclerview.setAdapter(adapter);
         RecentTask recentTask = new RecentTask();
         recentTask.execute();
     }
@@ -99,7 +91,7 @@ public class CreatedActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unbinder.unbind();
+        binding = null;
     }
 
     class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
@@ -110,41 +102,33 @@ public class CreatedActivity extends AppCompatActivity {
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
+            ItemRecentQrBinding binding;
 
-            @BindView(R.id.qr_recent_imageview)
-            ImageView qrRecentImageview;
-            @BindView(R.id.qr_recent_content)
-            TextView qrRecentContent;
-            @BindView(R.id.qr_recent_filename)
-            TextView qrRecentFilename;
-            @BindView(R.id.qr_recent_cardview)
-            CardView qrRecentCardview;
-
-            public ViewHolder(View view) {
-                super(view);
-                ButterKnife.bind(this, view);
+            public ViewHolder(ItemRecentQrBinding binding) {
+                super(binding.getRoot());
+                this.binding = binding;
             }
 
         }
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_recent_qr, parent, false);
-            return new ViewHolder(view);
+            ItemRecentQrBinding binding = ItemRecentQrBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+            return new ViewHolder(binding);
         }
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            Glide.with(CreatedActivity.this).load(qrCodes.get(position).getImage()).into(holder.qrRecentImageview);
-            holder.qrRecentContent.setText(qrCodes.get(position).getText());
+            Glide.with(CreatedActivity.this).load(qrCodes.get(position).getImage()).into(holder.binding.qrRecentImageview);
+            holder.binding.qrRecentContent.setText(qrCodes.get(position).getText());
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy년 MM월 DD일 생성");
-            holder.qrRecentFilename.setText(qrCodes.get(position).getFilename());
-            holder.qrRecentCardview.setOnClickListener(new View.OnClickListener() {
+            holder.binding.qrRecentFilename.setText(qrCodes.get(position).getFilename());
+            holder.binding.getRoot().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(CreatedActivity.this, QRCodeInfoActivity.class);
                     intent.putExtra("text", qrCodes.get(position).getText());
-                    ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(CreatedActivity.this, holder.qrRecentContent, "content");
+                    ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(CreatedActivity.this, holder.binding.qrRecentContent, "content");
                     startActivity(intent, optionsCompat.toBundle());
                 }
             });
@@ -167,21 +151,21 @@ public class CreatedActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            String path = Environment.getExternalStorageDirectory().toString() + "/TCQR/Create";
-            File file = new File(path);
-            if(file != null && file.listFiles() != null && file.listFiles().length > 0)
-            for (File f : file.listFiles()) {
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inJustDecodeBounds = true;
-                Bitmap bitmap = BitmapFactory.decodeFile(f.getPath());
-                if (bitmap != null) {
-                    try {
-                        QRCode qrCode = new QRCode(QRCodeUtils.DecodeToResult(bitmap));
-                        qrCode.setImage(f);
-                        qrCode.setFilename(f.getName());
-                        qrCodes.add(qrCode);
-                    } catch (IOException | FormatException | NotFoundException | ChecksumException | IllegalArgumentException e) {
-                        e.printStackTrace();
+            File storageDir = getExternalFilesDir("TCQR/Create");
+            if (storageDir != null && storageDir.exists() && storageDir.listFiles() != null) {
+                for (File f : storageDir.listFiles()) {
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.inJustDecodeBounds = true;
+                    Bitmap bitmap = BitmapFactory.decodeFile(f.getPath());
+                    if (bitmap != null) {
+                        try {
+                            QRCode qrCode = new QRCode(QRCodeUtils.DecodeToResult(bitmap));
+                            qrCode.setImage(f);
+                            qrCode.setFilename(f.getName());
+                            qrCodes.add(qrCode);
+                        } catch (IOException | FormatException | NotFoundException | ChecksumException | IllegalArgumentException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
@@ -194,11 +178,11 @@ public class CreatedActivity extends AppCompatActivity {
             if (qrCodes.size() != 0) {
                 adapter.notifyDataSetChanged();
             }
-            if (qrRecentProgress != null && qrRecentProgress.getVisibility() != View.INVISIBLE) {
-                qrRecentProgress.setVisibility(View.INVISIBLE);
+            if (binding.contentCreated.qrRecentProgress != null && binding.contentCreated.qrRecentProgress.getVisibility() != View.INVISIBLE) {
+                binding.contentCreated.qrRecentProgress.setVisibility(View.INVISIBLE);
             }
-            if (qrRecentRecyclerview != null && qrRecentRecyclerview.getVisibility() != View.VISIBLE) {
-                qrRecentRecyclerview.setVisibility(View.VISIBLE);
+            if (binding.contentCreated.qrRecentRecyclerview != null && binding.contentCreated.qrRecentRecyclerview.getVisibility() != View.VISIBLE) {
+                binding.contentCreated.qrRecentRecyclerview.setVisibility(View.VISIBLE);
             }
         }
     }

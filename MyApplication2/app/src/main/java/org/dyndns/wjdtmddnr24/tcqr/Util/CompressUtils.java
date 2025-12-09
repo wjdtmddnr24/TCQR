@@ -2,9 +2,7 @@ package org.dyndns.wjdtmddnr24.tcqr.Util;
 
 import android.util.Base64;
 
-import org.apache.http.util.ByteArrayBuffer;
 import org.tukaani.xz.LZMA2Options;
-import org.tukaani.xz.UnsupportedOptionsException;
 import org.tukaani.xz.XZInputStream;
 import org.tukaani.xz.XZOutputStream;
 
@@ -40,12 +38,12 @@ public class CompressUtils {
         ByteArrayInputStream input = new ByteArrayInputStream(Base64.decode(text.getBytes("ISO-8859-1"), 0));
         XZInputStream xzInput = new XZInputStream(input);
         int read;
-        ByteArrayBuffer byteArrayBuffer = new ByteArrayBuffer(6);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         byte[] buffer = new byte[3000];
         while ((read = xzInput.read(buffer)) != -1) {
-            byteArrayBuffer.append(buffer, 0, read);
+            byteArrayOutputStream.write(buffer, 0, read);
         }
-        return new String(byteArrayBuffer.toByteArray(), "UTF-8");
+        return new String(byteArrayOutputStream.toByteArray(), "UTF-8");
 
     }
 

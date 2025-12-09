@@ -2,14 +2,13 @@ package org.dyndns.wjdtmddnr24.tcqr.Fragment;
 
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
+
+import androidx.fragment.app.Fragment;
 
 import com.google.zxing.Result;
 
@@ -28,8 +27,8 @@ public class SimpleScannerFragment extends Fragment implements ZXingScannerView.
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof ScanCodeWithGalleryFragment.OnFragmentInteractionListener) {
-            mListener = (SimpleScannerFragment.OnFragmentInteractionListener) context;
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -45,9 +44,9 @@ public class SimpleScannerFragment extends Fragment implements ZXingScannerView.
 
     @Override
     public void handleResult(Result result) {
-        mListener.onFragmentInteractionSimpleCamera(result);
-//        Toast.makeText(getActivity(), result.getText() +
-//                result.getBarcodeFormat().toString(), Toast.LENGTH_SHORT).show();
+        if (mListener != null) {
+            mListener.onFragmentInteractionSimpleCamera(result);
+        }
         Handler handler = new Handler();
         handler.postDelayed(() -> mScannerView.resumeCameraPreview(SimpleScannerFragment.this), 2000);
     }

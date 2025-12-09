@@ -12,7 +12,7 @@
     tools:context="org.dyndns.wjdtmddnr24.tcqr.EncodeQRActivity"
     tools:showIn="@layout/activity_encodeqr">
 
-    <android.support.design.widget.TextInputLayout
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/textinput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -25,7 +25,7 @@
             android:layout_alignParentTop="true"
             android:hint="내용"
             android:lines="4" />
-    </android.support.design.widget.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
     <Button
         android:id="@+id/button"

@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -13,26 +12,23 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.SimpleTarget;
-import com.flipboard.bottomsheet.BottomSheetLayout;
-import com.flipboard.bottomsheet.commons.ImagePickerSheetView;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.zxing.ChecksumException;
 import com.google.zxing.FormatException;
 import com.google.zxing.NotFoundException;
@@ -40,55 +36,42 @@ import com.google.zxing.Result;
 
 import org.dyndns.wjdtmddnr24.tcqr.R;
 import org.dyndns.wjdtmddnr24.tcqr.Util.QRCodeUtils;
+import org.dyndns.wjdtmddnr24.tcqr.databinding.FragmentScanCodeWithGalleryBinding;
 import org.dyndns.wjdtmddnr24.tcqr.model.QRCode;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.Unbinder;
-import lombok.Getter;
-import lombok.Setter;
-
-public class ScanCodeWithGalleryFragment extends Fragment {
+public class ScanCodeWithGalleryFragment extends Fragment implements View.OnClickListener {
 
     private static final int REQUEST_PERMISSION_READ_EXTERNAL_STORAGE = 10;
     private static final int REQUEST_LOAD_IMAGE = 11;
     private static final int REQUEST_WRITE_PERMISSION = 12;
 
-    @BindView(R.id.album_info)
-    TextView albumInfo;
-    @BindView(R.id.album_imageview)
-    ImageView albumImageview;
-    @BindView(R.id.album_image)
-    Button albumImage;
-    @BindView(R.id.album_clipboard)
-    Button albumClipboard;
-    @BindView(R.id.album_reset)
-    Button albumReset;
-    @Getter
-    @BindView(R.id.bottomsheet)
-    BottomSheetLayout bottomsheet;
+    private FragmentScanCodeWithGalleryBinding binding;
     private OnFragmentInteractionListener mListener;
     public static final int REQUEST_READ_EXTERNAL_STORAGE = 1;
 
-    private Unbinder unbinder;
-    private ImagePickerSheetView imagePickerSheetView;
-    @Setter
     private QRCode qrCode;
+
+    public void setQrCode(QRCode qrCode) {
+        this.qrCode = qrCode;
+    }
+
+    public BottomSheetBehavior getBottomsheet() {
+        return null; // This is no longer used
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_LOAD_IMAGE) {
             Uri selectedImageUri = data.getData();
             if (selectedImageUri != null)
-                Glide.with(this).load(selectedImageUri).asBitmap().into(new SimpleTarget<Bitmap>() {
+                Glide.with(this).asBitmap().load(selectedImageUri).into(new CustomTarget<Bitmap>() {
                     @Override
-                    public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
                         try {
-                            albumImageview.setImageBitmap(resource);
+                            binding.albumImageview.setImageBitmap(resource);
                             Result result = QRCodeUtils.DecodeToResult(resource);
                             mListener.onFragmentInteractionGallery(result);
                         } catch (FormatException | ChecksumException | UnsupportedEncodingException | NotFoundException e) {
@@ -96,6 +79,11 @@ public class ScanCodeWithGalleryFragment extends Fragment {
                             Toast.makeText(getContext(), R.string.error_decode, Toast.LENGTH_SHORT).show();
                             qrCode = null;
                         }
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+
                     }
                 });
         }
@@ -105,8 +93,7 @@ public class ScanCodeWithGalleryFragment extends Fragment {
     }
 
     public static ScanCodeWithGalleryFragment newInstance() {
-        ScanCodeWithGalleryFragment fragment = new ScanCodeWithGalleryFragment();
-        return fragment;
+        return new ScanCodeWithGalleryFragment();
     }
 
     @Override
@@ -117,27 +104,21 @@ public class ScanCodeWithGalleryFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_scan_code_with_gallery, container, false);
-        unbinder = ButterKnife.bind(this, view);
-        albumInfo.setText(Html.fromHtml(getContext().getResources().getString(R.string.album_info)));
-        return view;
-    }
+        binding = FragmentScanCodeWithGalleryBinding.inflate(inflater, container, false);
+        binding.albumInfo.setText(Html.fromHtml(getContext().getResources().getString(R.string.album_info), Html.FROM_HTML_MODE_LEGACY));
 
-    private ImagePickerSheetView getImagePickerSheetView() {
-        return imagePickerSheetView = new ImagePickerSheetView.Builder(getContext()).setMaxItems(15).setShowPickerOption(createPickIntent() != null).setShowCameraOption(false).setImageProvider((imageView, imageUri, size) -> Glide.with(getContext()).load(imageUri).centerCrop().crossFade().into(imageView)).setOnTileSelectedListener(selectedTile -> {
-            bottomsheet.dismissSheet();
-            if (selectedTile.isPickerTile()) {
-                startActivityForResult(createPickIntent(), REQUEST_LOAD_IMAGE);
-            } else if (selectedTile.isImageTile()) {
-                showSelectedImage(selectedTile.getImageUri());
-            }
-        }).setTitle(R.string.decode_select_image).create();
+        binding.albumImage.setOnClickListener(this);
+        binding.albumClipboard.setOnClickListener(this);
+        binding.albumReset.setOnClickListener(this);
+        binding.albumImageview.setOnClickListener(this);
+
+        return binding.getRoot();
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        unbinder.unbind();
+        binding = null;
     }
 
     @Override
@@ -168,81 +149,59 @@ public class ScanCodeWithGalleryFragment extends Fragment {
         }
     }
 
-    private void showSelectedImage(Uri selectedImageUri) {
-        albumImageview.setImageDrawable(null);
-        Glide.with(this).load(selectedImageUri).into(albumImageview);
-        Glide.with(this).load(selectedImageUri).asBitmap().into(new SimpleTarget<Bitmap>() {
-            @Override
-            public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                try {
-                    Result result = QRCodeUtils.DecodeToResult(resource);
-                    mListener.onFragmentInteractionGallery(result);
-                } catch (FormatException | ChecksumException | UnsupportedEncodingException | NotFoundException e) {
-                    e.printStackTrace();
-                    Toast.makeText(getContext(), R.string.error_decode, Toast.LENGTH_SHORT).show();
-                    qrCode = null;
-                }
-            }
-        });
-    }
-
-
-    @OnClick({R.id.album_image, R.id.album_clipboard, R.id.album_reset, R.id.album_imageview})
+    @Override
     public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.album_image: {
-                if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions((Activity) getContext(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_PERMISSION);
-                    return;
-                }
-                if (imagePickerSheetView == null) {
-                    imagePickerSheetView = getImagePickerSheetView();
-                }
-                bottomsheet.showWithSheetView(imagePickerSheetView);
-                break;
+        int viewId = view.getId();
+        if (viewId == R.id.album_image) {
+            if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions((Activity) getContext(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_PERMISSION);
+                return;
             }
-            case R.id.album_clipboard:
-                try {
-                    Uri uri = getUrifromClipboard();
-                    Glide.with(this).load(uri).asBitmap().into(new SimpleTarget<Bitmap>() {
-                        @Override
-                        public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                            try {
-                                albumImageview.setImageBitmap(resource);
-                                Result result = QRCodeUtils.DecodeToResult(resource);
-                                mListener.onFragmentInteractionGallery(result);
-                            } catch (FormatException | ChecksumException | UnsupportedEncodingException | NotFoundException e) {
-                                e.printStackTrace();
-                                Toast.makeText(getContext(), R.string.error_decode, Toast.LENGTH_SHORT).show();
-                                qrCode = null;
-                            }
-                        }
-
-                        @Override
-                        public void onLoadFailed(Exception e, Drawable errorDrawable) {
-                            super.onLoadFailed(e, errorDrawable);
-                            albumImageview.setImageDrawable(null);
-                            Toast.makeText(getContext(), R.string.error_load, Toast.LENGTH_SHORT).show();
+            startActivityForResult(createPickIntent(), REQUEST_LOAD_IMAGE);
+        } else if (viewId == R.id.album_clipboard) {
+            try {
+                Uri uri = getUrifromClipboard();
+                Glide.with(this).asBitmap().load(uri).into(new CustomTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                        try {
+                            binding.albumImageview.setImageBitmap(resource);
+                            Result result = QRCodeUtils.DecodeToResult(resource);
+                            mListener.onFragmentInteractionGallery(result);
+                        } catch (FormatException | ChecksumException | UnsupportedEncodingException | NotFoundException e) {
+                            e.printStackTrace();
+                            Toast.makeText(getContext(), R.string.error_decode, Toast.LENGTH_SHORT).show();
                             qrCode = null;
                         }
-                    });
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    albumImageview.setImageDrawable(null);
-                    Toast.makeText(getContext(), R.string.error_load, Toast.LENGTH_SHORT).show();
-                    qrCode = null;
-                }
-                break;
-            case R.id.album_reset:
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                    }
+
+                    @Override
+                    public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                        super.onLoadFailed(errorDrawable);
+                        binding.albumImageview.setImageDrawable(null);
+                        Toast.makeText(getContext(), R.string.error_load, Toast.LENGTH_SHORT).show();
+                        qrCode = null;
+                    }
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+                binding.albumImageview.setImageDrawable(null);
+                Toast.makeText(getContext(), R.string.error_load, Toast.LENGTH_SHORT).show();
                 qrCode = null;
-                albumImageview.setImageDrawable(null);
-                albumImageview.setAnimation(new AlphaAnimation(0, 1));
-                break;
-            case R.id.album_imageview:
-                if (qrCode != null) {
-                    mListener.showQRCodeInfo(qrCode);
-                }
-                break;
+            }
+        } else if (viewId == R.id.album_reset) {
+            qrCode = null;
+            binding.albumImageview.setImageDrawable(null);
+            binding.albumImageview.setAnimation(new AlphaAnimation(0, 1));
+        } else if (viewId == R.id.album_imageview) {
+            if (qrCode != null) {
+                mListener.showQRCodeInfo(qrCode);
+            }
         }
     }
 
@@ -257,10 +216,6 @@ public class ScanCodeWithGalleryFragment extends Fragment {
         ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = clipboard.getPrimaryClip();
         ClipData.Item item = clip.getItemAt(0);
-        Uri pasteUri = item.getUri();
-//        return MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), pasteUri);
-        return pasteUri;
+        return item.getUri();
     }
-
-
 }

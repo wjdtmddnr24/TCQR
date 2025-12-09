@@ -6,45 +6,39 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.Unbinder;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
+import org.dyndns.wjdtmddnr24.tcqr.databinding.ActivityQrcodeInfoBinding;
 
 public class QRCodeInfoActivity extends AppCompatActivity implements DialogInterface.OnClickListener {
 
-    @BindView(R.id.qr_text)
-    TextView qrText;
-    private Unbinder unbinder;
+    private ActivityQrcodeInfoBinding binding;
     private String text;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_qrcode_info);
-        unbinder = ButterKnife.bind(this);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        binding = ActivityQrcodeInfoBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        Toolbar toolbar = binding.toolbar;
         toolbar.setTitle(R.string.qr_info_view_text);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Intent intent = getIntent();
         text = intent.getStringExtra("text");
-        qrText.setText(text);
-        qrText.setOnLongClickListener(new View.OnLongClickListener() {
+        binding.contentQrcodeInfo.qrText.setText(text);
+        binding.contentQrcodeInfo.qrText.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 new AlertDialog.Builder(QRCodeInfoActivity.this).setTitle("기능 선택").setItems(new CharSequence[]{
-                       getString(R.string.copy_into_clipboard)
+                        getString(R.string.copy_into_clipboard)
                 }, QRCodeInfoActivity.this).create().show();
                 return true;
             }
@@ -65,7 +59,7 @@ public class QRCodeInfoActivity extends AppCompatActivity implements DialogInter
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unbinder.unbind();
+        binding = null;
     }
 
     @Override
