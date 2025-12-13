@@ -3,6 +3,7 @@ package org.dyndns.wjdtmddnr24.tcqr.Util;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.media.MediaScannerConnection;
+import android.os.Environment;
 import android.widget.Toast;
 
 import com.google.zxing.BarcodeFormat;
@@ -66,8 +67,8 @@ public class QRCodeUtils {
     }
 
     public static File saveQRCode(Context context, Bitmap bitmap, String folder) throws IOException {
-        File storageDir = context.getExternalFilesDir(folder);
-        if (storageDir != null && !storageDir.exists()) {
+        File storageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), folder);
+        if (!storageDir.exists()) {
             storageDir.mkdirs();
         }
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddhhmm");

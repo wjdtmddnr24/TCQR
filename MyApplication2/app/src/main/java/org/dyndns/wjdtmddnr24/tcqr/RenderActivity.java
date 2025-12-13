@@ -34,6 +34,7 @@ import org.dyndns.wjdtmddnr24.tcqr.Util.QRCodeUtils;
 import org.dyndns.wjdtmddnr24.tcqr.databinding.ActivityRenderBinding;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
@@ -93,16 +94,13 @@ public class RenderActivity extends AppCompatActivity implements DialogInterface
             Toast.makeText(this, "QR Code not generated yet.", Toast.LENGTH_SHORT).show();
             return;
         }
-        try {
-            File file = QRCodeUtils.saveQRCode(this, bitmap, "/TCQR/Create/");
-            Uri bmpUri = FileProvider.getUriForFile(this, getPackageName() + ".provider", file);
+        Uri bmpUri = saveImageToCache(bitmap);
+        if (bmpUri != null) {
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             intent.putExtra(Intent.EXTRA_STREAM, bmpUri);
-            intent.setType("image/jpg");
+            intent.setType("image/png");
             startActivity(Intent.createChooser(intent, getString(R.string.share)));
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -122,6 +120,10 @@ public class RenderActivity extends AppCompatActivity implements DialogInterface
 
     @Override
     public void onClick(DialogInterface dialog, int i) {
+        if (bitmap == null) {
+            Toast.makeText(this, "QR Code not generated yet.", Toast.LENGTH_SHORT).show();
+            return;
+        }
         switch (i) {
             case 0:
                 //파일 저장
@@ -136,19 +138,34 @@ public class RenderActivity extends AppCompatActivity implements DialogInterface
                 shareImage();
                 break;
             }
-            case 2: { // 파일 클립보드로 저장
-                try {
-                    File file = QRCodeUtils.saveQRCode(this, bitmap, "/TCQR/Create/");
-                    Uri bmpUri = FileProvider.getUriForFile(this, getPackageName() + ".provider", file);
-                    ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                    ClipData clip = ClipData.newUri(getContentResolver(), "Image", bmpUri);
-                    clipboard.setPrimaryClip(clip);
-                    Toast.makeText(RenderActivity.this, R.string.copy_clipboard, Toast.LENGTH_SHORT).show();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            case 2: { // 파일 클립보드로 저장 (temporarily disabled)
+//                Uri bmpUri = saveImageToCache(bitmap);
+//                if (bmpUri != null) {
+//                    ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+//                    ClipData clip = ClipData.newUri(getContentResolver(), "Image", bmpUri);
+//                    clipboard.setPrimaryClip(clip);
+//                    Toast.makeText(RenderActivity.this, R.string.copy_clipboard, Toast.LENGTH_SHORT).show();
+//                }
                 break;
             }
+        }
+    }
+
+    private Uri saveImageToCache(Bitmap bitmap) {
+        if (bitmap == null) {
+            return null;
+        }
+        try {
+            File cachePath = new File(getCacheDir(), "images");
+            cachePath.mkdirs();
+            File file = new File(cachePath, "qr_code_to_share.png");
+            FileOutputStream stream = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+            stream.close();
+            return FileProvider.getUriForFile(this, getPackageName() + ".provider", file);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
@@ -207,13 +224,13 @@ public class RenderActivity extends AppCompatActivity implements DialogInterface
                 binding.contentRender.rendering.setImageBitmap(bitmap);
                 binding.contentRender.rendering.setOnLongClickListener(v -> {
                     new AlertDialog.Builder(RenderActivity.this).setTitle(R.string.choose_to).setItems(new CharSequence[]{
-                            getString(R.string.save_image), getString(R.string.share_image), getString(R.string.copy_image)
+                            getString(R.string.save_image), getString(R.string.share_image)
                     }, RenderActivity.this).create().show();
                     return true;
                 });
                 binding.contentRender.rendering.setOnClickListener(v -> {
                     new AlertDialog.Builder(RenderActivity.this).setTitle(R.string.choose_to).setItems(new CharSequence[]{
-                            getString(R.string.save_image), getString(R.string.share_image), getString(R.string.copy_image)
+                            getString(R.string.save_image), getString(R.string.share_image)
                     }, RenderActivity.this).create().show();
                 });
             }

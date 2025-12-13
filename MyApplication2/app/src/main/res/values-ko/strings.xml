@@ -38,7 +38,7 @@
     <string name="insert_url">URL를 입력하십시오.</string>
     <string name="album_info1">카메라 앨범 또는 클립보드의 QR코드를 인식합니다. 아래의 버튼을 눌러 방식을 선택하십시오</string>
     <string name="url_info1">아래 URL를 입력하시고 버튼을 누르시면\\n이미지를 자동으로 다운로드하여 인식합니다.</string>
-    <string name="nav_credit">선린 인터넷 고등학교 정승욱 유병훈 김주용</string>
+    <string name="nav_credit"></string>
     <string name="decode_select_image">이미지를 선택하세요...</string>
     <string name="insert_url_here">URL주소를 입력해주시기 바랍니다.</string>
     <string name="decode_error_load_image">이미지를 불러오는데 문제가 발생하였습니다. 정확한 주소를 입력하였는지 확인해주세요.</string>
@@ -50,4 +50,5 @@
     <string name="copy">복사</string>
     <string name="qr_info_is_compressed">TCQR로 압축됨</string>
     <string name="request_write_permission">본 기능을 사용하려면 쓰기 권한이 필요합니다. 쓰기권한을 주시기 바랍니다.</string>
+    <string name="error_clipboard">클립보드에 복사된 이미지가 없거나, 잘못된 이미지입니다.</string>
 </resources>

@@ -55,6 +55,7 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/textinput"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_alignParentTop="true"
@@ -63,7 +64,7 @@
                     android:layout_marginTop="15dp">
 
 
-                    <EditText
+                    <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/edittext"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"

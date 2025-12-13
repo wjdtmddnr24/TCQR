@@ -1,28 +1,17 @@
 package org.dyndns.wjdtmddnr24.tcqr;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.cardview.widget.CardView;
-import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -43,22 +32,9 @@ import java.util.ArrayList;
 
 public class CreatedActivity extends AppCompatActivity {
 
-    private static final int REQUEST_WRITE_PERMISSION = 101;
     private ActivityCreatedBinding binding;
     private ArrayList<QRCode> qrCodes;
     private RecentAdapter adapter;
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_WRITE_PERMISSION) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                loadRecentQRCodes();
-            } else {
-                Toast.makeText(CreatedActivity.this, R.string.request_write_permission, Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,12 +47,7 @@ public class CreatedActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        if (ContextCompat.checkSelfPermission(CreatedActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(CreatedActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_PERMISSION);
-        } else {
-            loadRecentQRCodes();
-        }
-
+        loadRecentQRCodes();
     }
 
     private void loadRecentQRCodes() {
@@ -92,6 +63,29 @@ public class CreatedActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         binding = null;
+    }
+
+    public static int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) >= reqHeight
+                    && (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
     }
 
     class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
@@ -154,18 +148,28 @@ public class CreatedActivity extends AppCompatActivity {
             File storageDir = getExternalFilesDir("TCQR/Create");
             if (storageDir != null && storageDir.exists() && storageDir.listFiles() != null) {
                 for (File f : storageDir.listFiles()) {
-                    BitmapFactory.Options options = new BitmapFactory.Options();
-                    options.inJustDecodeBounds = true;
-                    Bitmap bitmap = BitmapFactory.decodeFile(f.getPath());
-                    if (bitmap != null) {
-                        try {
+                    try {
+                        // Decode with inJustDecodeBounds=true to check dimensions
+                        final BitmapFactory.Options options = new BitmapFactory.Options();
+                        options.inJustDecodeBounds = true;
+                        BitmapFactory.decodeFile(f.getAbsolutePath(), options);
+
+                        // Calculate inSampleSize
+                        options.inSampleSize = calculateInSampleSize(options, 512, 512);
+
+                        // Decode bitmap with inSampleSize set
+                        options.inJustDecodeBounds = false;
+                        Bitmap bitmap = BitmapFactory.decodeFile(f.getAbsolutePath(), options);
+
+                        if (bitmap != null) {
                             QRCode qrCode = new QRCode(QRCodeUtils.DecodeToResult(bitmap));
                             qrCode.setImage(f);
                             qrCode.setFilename(f.getName());
                             qrCodes.add(qrCode);
-                        } catch (IOException | FormatException | NotFoundException | ChecksumException | IllegalArgumentException e) {
-                            e.printStackTrace();
+                            bitmap.recycle(); // Recycle the bitmap to free memory
                         }
+                    } catch (IOException | FormatException | NotFoundException | ChecksumException | IllegalArgumentException e) {
+                        e.printStackTrace();
                     }
                 }
             }
@@ -175,6 +179,7 @@ public class CreatedActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
+            if (binding == null) return; // view is already destroyed
             if (qrCodes.size() != 0) {
                 adapter.notifyDataSetChanged();
             }

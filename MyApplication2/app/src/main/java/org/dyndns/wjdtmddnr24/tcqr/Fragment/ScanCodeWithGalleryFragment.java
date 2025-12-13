@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.Html;
@@ -21,14 +22,12 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.zxing.ChecksumException;
 import com.google.zxing.FormatException;
 import com.google.zxing.NotFoundException;
@@ -44,13 +43,11 @@ import java.io.UnsupportedEncodingException;
 
 public class ScanCodeWithGalleryFragment extends Fragment implements View.OnClickListener {
 
-    private static final int REQUEST_PERMISSION_READ_EXTERNAL_STORAGE = 10;
+    private static final int REQUEST_PERMISSION_READ_MEDIA = 10;
     private static final int REQUEST_LOAD_IMAGE = 11;
-    private static final int REQUEST_WRITE_PERMISSION = 12;
 
     private FragmentScanCodeWithGalleryBinding binding;
     private OnFragmentInteractionListener mListener;
-    public static final int REQUEST_READ_EXTERNAL_STORAGE = 1;
 
     private QRCode qrCode;
 
@@ -58,34 +55,12 @@ public class ScanCodeWithGalleryFragment extends Fragment implements View.OnClic
         this.qrCode = qrCode;
     }
 
-    public BottomSheetBehavior getBottomsheet() {
-        return null; // This is no longer used
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_LOAD_IMAGE) {
             Uri selectedImageUri = data.getData();
             if (selectedImageUri != null)
-                Glide.with(this).asBitmap().load(selectedImageUri).into(new CustomTarget<Bitmap>() {
-                    @Override
-                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                        try {
-                            binding.albumImageview.setImageBitmap(resource);
-                            Result result = QRCodeUtils.DecodeToResult(resource);
-                            mListener.onFragmentInteractionGallery(result);
-                        } catch (FormatException | ChecksumException | UnsupportedEncodingException | NotFoundException e) {
-                            e.printStackTrace();
-                            Toast.makeText(getContext(), R.string.error_decode, Toast.LENGTH_SHORT).show();
-                            qrCode = null;
-                        }
-                    }
-
-                    @Override
-                    public void onLoadCleared(@Nullable Drawable placeholder) {
-
-                    }
-                });
+                decode(selectedImageUri);
         }
     }
 
@@ -139,13 +114,12 @@ public class ScanCodeWithGalleryFragment extends Fragment implements View.OnClic
     }
 
 
-    @Nullable
-    private Intent createPickIntent() {
+    private void openGallery() {
         Intent picImageIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         if (picImageIntent.resolveActivity(getActivity().getPackageManager()) != null) {
-            return picImageIntent;
+            startActivityForResult(picImageIntent, REQUEST_LOAD_IMAGE);
         } else {
-            return null;
+            Toast.makeText(getContext(), "Gallery not available", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -153,54 +127,95 @@ public class ScanCodeWithGalleryFragment extends Fragment implements View.OnClic
     public void onClick(View view) {
         int viewId = view.getId();
         if (viewId == R.id.album_image) {
-            if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions((Activity) getContext(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_PERMISSION);
-                return;
-            }
-            startActivityForResult(createPickIntent(), REQUEST_LOAD_IMAGE);
+            requestStoragePermission();
         } else if (viewId == R.id.album_clipboard) {
-            try {
-                Uri uri = getUrifromClipboard();
-                Glide.with(this).asBitmap().load(uri).into(new CustomTarget<Bitmap>() {
-                    @Override
-                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                        try {
-                            binding.albumImageview.setImageBitmap(resource);
-                            Result result = QRCodeUtils.DecodeToResult(resource);
-                            mListener.onFragmentInteractionGallery(result);
-                        } catch (FormatException | ChecksumException | UnsupportedEncodingException | NotFoundException e) {
-                            e.printStackTrace();
-                            Toast.makeText(getContext(), R.string.error_decode, Toast.LENGTH_SHORT).show();
-                            qrCode = null;
-                        }
-                    }
+            loadFromClipboard();
+        } else if (viewId == R.id.album_reset) {
+            qrCode = null;
+            if(binding != null) {
+                binding.albumImageview.setImageDrawable(null);
+                binding.albumImageview.setAnimation(new AlphaAnimation(0, 1));
+            }
+        } else if (viewId == R.id.album_imageview) {
+            if (qrCode != null) {
+                mListener.showQRCodeInfo(qrCode);
+            }
+        }
+    }
 
-                    @Override
-                    public void onLoadCleared(@Nullable Drawable placeholder) {
+    private void requestStoragePermission() {
+        String permission;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permission = Manifest.permission.READ_MEDIA_IMAGES;
+        } else {
+            permission = Manifest.permission.READ_EXTERNAL_STORAGE;
+        }
 
-                    }
+        if (ContextCompat.checkSelfPermission(getContext(), permission) == PackageManager.PERMISSION_GRANTED) {
+            openGallery();
+        } else {
+            requestPermissions(new String[]{permission}, REQUEST_PERMISSION_READ_MEDIA);
+        }
+    }
 
-                    @Override
-                    public void onLoadFailed(@Nullable Drawable errorDrawable) {
-                        super.onLoadFailed(errorDrawable);
-                        binding.albumImageview.setImageDrawable(null);
-                        Toast.makeText(getContext(), R.string.error_load, Toast.LENGTH_SHORT).show();
-                        qrCode = null;
+    private void loadFromClipboard() {
+        try {
+            Uri uri = getUrifromClipboard();
+            if (uri != null) {
+                decode(uri);
+            } else {
+                Toast.makeText(getContext(), R.string.error_clipboard, Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            if(getContext() != null) {
+                Toast.makeText(getContext(), R.string.error_load, Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void decode(Uri uri) {
+        if (getContext() == null) return;
+        Glide.with(this).asBitmap().load(uri).into(new CustomTarget<Bitmap>() {
+            @Override
+            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                if (getContext() == null || binding == null) return;
+                try {
+                    binding.albumImageview.setImageBitmap(resource);
+                    Result result = QRCodeUtils.DecodeToResult(resource);
+                    if (mListener != null) {
+                        mListener.onFragmentInteractionGallery(result);
                     }
-                });
-            } catch (IOException e) {
-                e.printStackTrace();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Toast.makeText(getContext(), R.string.error_decode, Toast.LENGTH_SHORT).show();
+                    qrCode = null;
+                }
+            }
+
+            @Override
+            public void onLoadCleared(@Nullable Drawable placeholder) {
+            }
+
+            @Override
+            public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                super.onLoadFailed(errorDrawable);
+                 if (getContext() == null || binding == null) return;
                 binding.albumImageview.setImageDrawable(null);
                 Toast.makeText(getContext(), R.string.error_load, Toast.LENGTH_SHORT).show();
                 qrCode = null;
             }
-        } else if (viewId == R.id.album_reset) {
-            qrCode = null;
-            binding.albumImageview.setImageDrawable(null);
-            binding.albumImageview.setAnimation(new AlphaAnimation(0, 1));
-        } else if (viewId == R.id.album_imageview) {
-            if (qrCode != null) {
-                mListener.showQRCodeInfo(qrCode);
+        });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_PERMISSION_READ_MEDIA) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                openGallery();
+            } else {
+                Toast.makeText(getContext(), "Permission denied to read storage", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -212,10 +227,16 @@ public class ScanCodeWithGalleryFragment extends Fragment implements View.OnClic
     }
 
 
-    private Uri getUrifromClipboard() throws IOException {
+    private Uri getUrifromClipboard() {
+        if (getContext() == null) return null;
         ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clip = clipboard.getPrimaryClip();
-        ClipData.Item item = clip.getItemAt(0);
-        return item.getUri();
+        if (clipboard != null && clipboard.hasPrimaryClip()) {
+            ClipData clip = clipboard.getPrimaryClip();
+            if (clip != null && clip.getItemCount() > 0) {
+                ClipData.Item item = clip.getItemAt(0);
+                return item.getUri();
+            }
+        }
+        return null;
     }
 }

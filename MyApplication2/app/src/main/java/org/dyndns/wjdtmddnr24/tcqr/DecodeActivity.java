@@ -82,7 +82,7 @@ public class DecodeActivity extends AppCompatActivity implements ScanCodeWithCam
         binding.tablayout.setupWithViewPager(binding.contentDecode.viewpager);
 
         bottomSheetBehavior = BottomSheetBehavior.from(binding.qrInfoLayout.getRoot());
-        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQUEST_WRITE_PERMISSION);

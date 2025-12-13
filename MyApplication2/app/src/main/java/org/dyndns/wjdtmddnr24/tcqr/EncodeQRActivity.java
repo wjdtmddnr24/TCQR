@@ -6,7 +6,6 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
@@ -53,10 +52,9 @@ import org.tukaani.xz.XZOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Hashtable;
 
 public class EncodeQRActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, View.OnLongClickListener, DialogInterface.OnClickListener {
@@ -133,16 +131,13 @@ public class EncodeQRActivity extends AppCompatActivity implements NavigationVie
                 binding.contentEncodeqr.edittext.requestFocus();
                 return true;
             }
-            try {
-                File file = QRCodeUtils.saveQRCode(this, ((BitmapDrawable) binding.contentEncodeqr.imageView.getDrawable()).getBitmap(), "/TCQR/Create/");
-                Uri bmpUri = FileProvider.getUriForFile(this, getPackageName() + ".provider", file);
+            Uri bmpUri = saveImageToCache(((BitmapDrawable) binding.contentEncodeqr.imageView.getDrawable()).getBitmap());
+            if (bmpUri != null) {
                 final Intent shareIntent = new Intent(android.content.Intent.ACTION_SEND);
                 shareIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 shareIntent.putExtra(Intent.EXTRA_STREAM, bmpUri);
                 shareIntent.setType("image/png");
                 startActivity(shareIntent);
-            } catch (IOException e) {
-                e.printStackTrace();
             }
         }
 
@@ -189,12 +184,6 @@ public class EncodeQRActivity extends AppCompatActivity implements NavigationVie
         }
     }
 
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
-
     @Override
     public boolean onLongClick(View view) {
         if (view.getId() == R.id.imageView) {
@@ -209,45 +198,71 @@ public class EncodeQRActivity extends AppCompatActivity implements NavigationVie
 
     @Override
     public void onClick(DialogInterface dialog, int i) {
+        Bitmap bitmap = null;
+        if (binding.contentEncodeqr.imageView.getDrawable() != null) {
+            bitmap = ((BitmapDrawable) binding.contentEncodeqr.imageView.getDrawable()).getBitmap();
+        }
+        if (bitmap == null) {
+            Toast.makeText(this, "QR 코드 이미지가 없습니다.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         switch (i) {
             case 0:
-                //파일 저장
+                //파일 저장 (Keeps original behavior, may require permissions)
                 try {
-                    QRCodeUtils.saveQRCode(EncodeQRActivity.this, ((BitmapDrawable) binding.contentEncodeqr.imageView.getDrawable()).getBitmap(), "/TCQR/Create/");
+                    QRCodeUtils.saveQRCode(EncodeQRActivity.this, bitmap, "/TCQR/Create/");
                 } catch (IOException e) {
                     e.printStackTrace();
                     Toast.makeText(EncodeQRActivity.this, "파일을 저장하는데 문제가 발생하였습니다.", Toast.LENGTH_SHORT).show();
                 }
                 break;
             case 1: { //파일 공유
-                try {
-                    File file = QRCodeUtils.saveQRCode(this, ((BitmapDrawable) binding.contentEncodeqr.imageView.getDrawable()).getBitmap(), "/TCQR/Create/");
-                    Uri bmpUri = FileProvider.getUriForFile(this, getPackageName() + ".provider", file);
+                Uri bmpUri = saveImageToCache(bitmap);
+                if (bmpUri != null) {
                     final Intent shareIntent = new Intent(Intent.ACTION_SEND);
                     shareIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     shareIntent.putExtra(Intent.EXTRA_STREAM, bmpUri);
                     shareIntent.setType("image/png");
-                    startActivity(shareIntent);
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    startActivity(Intent.createChooser(shareIntent, "이미지 공유"));
+                } else {
+                    Toast.makeText(this, "이미지를 공유할 수 없습니다.", Toast.LENGTH_SHORT).show();
                 }
                 break;
             }
             case 2: { // 파일 클립보드로 저장
-                try {
-                    File file = QRCodeUtils.saveQRCode(this, ((BitmapDrawable) binding.contentEncodeqr.imageView.getDrawable()).getBitmap(), "/TCQR/Create/");
-                    Uri bmpUri = FileProvider.getUriForFile(this, getPackageName() + ".provider", file);
+                Uri bmpUri = saveImageToCache(bitmap);
+                if (bmpUri != null) {
                     ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
                     ClipData clip = ClipData.newUri(getContentResolver(), "Image", bmpUri);
                     clipboard.setPrimaryClip(clip);
                     Toast.makeText(EncodeQRActivity.this, "클립보드로 복사하였습니다.", Toast.LENGTH_SHORT).show();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                } else {
+                    Toast.makeText(this, "이미지를 클립보드로 복사할 수 없습니다.", Toast.LENGTH_SHORT).show();
                 }
                 break;
             }
         }
     }
+
+    private Uri saveImageToCache(Bitmap bitmap) {
+        if (bitmap == null) {
+            return null;
+        }
+        try {
+            File cachePath = new File(getCacheDir(), "images");
+            cachePath.mkdirs();
+            File file = new File(cachePath, "qr_code_to_share.png");
+            FileOutputStream stream = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+            stream.close();
+            return FileProvider.getUriForFile(this, getPackageName() + ".provider", file);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 
     @Override
     protected void onDestroy() {
@@ -412,17 +427,10 @@ public class EncodeQRActivity extends AppCompatActivity implements NavigationVie
                     bitmap.setPixels(pixels, 0, w, 0, 0, w, h);
                     binding.contentEncodeqr.imageView.setImageBitmap(bitmap);
 //                    Toast.makeText(EncodeActivity.this, "문자 압축 성공" + bytes.length + ":" + size, Toast.LENGTH_SHORT).show();
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                    Toast.makeText(EncodeQRActivity.this, "문자를 압축하는데 오류가 발생하였습니다.", Toast.LENGTH_SHORT).show();
-                } catch (WriterException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
-
-            } else {
-                Toast.makeText(EncodeQRActivity.this, "문자를 압축하는데 오류가 발생하였습니다.", Toast.LENGTH_SHORT).show();
             }
-            compressTextTask = null;
         }
     }
 }

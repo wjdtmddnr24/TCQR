@@ -6,7 +6,7 @@
 
     <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
     <string name="title_activity_encode" translatable="false">EncodeActivity</string>
-    <string name="credit" translatable="false"> 이름: 정승욱 - 2학년 1반 24번\n이름: 유병훈 - 2학년 12반 20번\n이름: 김주용 - 2학년 1반 9번\n\n\n소속: 선린 인터넷 고등학교</string>
+    <string name="credit" translatable="false"> Name: Chung SeungUk</string>
     <string name="title_activity_decode" translatable="false">DecodeActivity</string>
     <string name="title1">Read QR Code</string>
     <string name="title2">Create QR Code</string>
@@ -49,7 +49,7 @@
     <string name="clipboard">Clipboard</string>
     <string name="go">Go</string>
     <string name="insert_url">Insert URL here.</string>
-    <string name="nav_credit">Sunrin Internet Highschool 정승욱 유병훈 김주용</string>
+    <string name="nav_credit"></string>
     <string name="error_decode">Error occured while scanning image. Make sure the image contains QR Code.</string>
     <string name="error_load">Error occured while getting image from clipboard. Make sure you copied image into clipboard.</string>
     <string name="decode_error_load_image">Error occured while loading image. Make sure you typed the right URL address.</string>
@@ -61,4 +61,5 @@
     <string name="qr_info_is_compressed">TCQR Compressed</string>
     <string name="qr_info_view_text">View Content</string>
     <string name="request_write_permission">Please grant write permission to use this function</string>
+    <string name="error_clipboard">There is no image copied on the clipboard, or the image is invalid.</string>
 </resources>
